@@ -6,6 +6,8 @@
 #include "engine/egameboard.h"
 #include "enumbers.h"
 
+#include <algorithm>
+
 eResourceCollectBuilding::eResourceCollectBuilding(
         eGameBoard& board,
         const eBaseTex baseTex,

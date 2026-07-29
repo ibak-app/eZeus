@@ -1,5 +1,7 @@
 #include "edustmissile.h"
 
+#include <algorithm>
+
 eDustMissile::eDustMissile(eGameBoard& board,
                            const std::vector<ePathPoint>& path) :
     eMissile(board, eMissileType::dust, path),

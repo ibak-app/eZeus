@@ -16,6 +16,8 @@
 #include "evectorhelpers.h"
 #include "enumbers.h"
 
+#include <algorithm>
+
 eWorldMapWidget::eWorldMapWidget(eMainWindow* const window) :
     eLabel(window) {}
 

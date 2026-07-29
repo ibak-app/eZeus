@@ -12,6 +12,8 @@
 #include "widgets/egamewidget.h"
 #include "widgets/eprogressbar.h"
 
+#include <algorithm>
+
 eSanctuaryInfoWidget::eSanctuaryInfoWidget(
         eMainWindow* const window,
         eMainWidget* const mw) :

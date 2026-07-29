@@ -6,6 +6,8 @@
 #include "engine/egameboard.h"
 #include "etroopsrequestevent.h"
 
+#include <algorithm>
+
 eTroopsRequestFulfilledEvent::eTroopsRequestFulfilledEvent(
         const eCityId cid,
         const eGameEventBranch branch,

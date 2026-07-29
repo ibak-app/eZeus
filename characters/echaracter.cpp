@@ -12,6 +12,8 @@
 
 #include "esoldier.h"
 
+#include <algorithm>
+
 eCharacter::eCharacter(eGameBoard& board,
                        const eCharacterType type) :
     eObject(board), eCharacterBase(type),

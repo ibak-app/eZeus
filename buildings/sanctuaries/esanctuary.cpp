@@ -36,6 +36,8 @@
 #include "etemplealtarbuilding.h"
 #include "enumbers.h"
 
+#include <algorithm>
+
 eSanctuary::eSanctuary(eGameBoard& board,
                        const eBuildingType type,
                        const int sw, const int sh,

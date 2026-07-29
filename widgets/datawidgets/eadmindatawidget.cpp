@@ -13,6 +13,8 @@
 #include "widgets/emultilinelabel.h"
 #include "widgets/moreinfo/ecityfinanceswidget.h"
 
+#include <algorithm>
+
 void eAdminDataWidget::initialize() {
     {
         mSeeTaxes = new eViewModeButton(

@@ -7,6 +7,8 @@
 
 #include "einvasionevent.h"
 
+#include <algorithm>
+
 ePlayerConquestEvent::ePlayerConquestEvent(
         const eCityId cid,
         const eGameEventBranch branch,

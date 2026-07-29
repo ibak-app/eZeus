@@ -17,6 +17,8 @@
 #include "elanguage.h"
 #include "audio/esounds.h"
 
+#include <algorithm>
+
 eBuilding::eBuilding(eGameBoard& board,
                      const eBuildingType type,
                      const int sw, const int sh,

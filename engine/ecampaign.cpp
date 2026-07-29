@@ -9,6 +9,8 @@
 #include "elanguage.h"
 #include "enumbers.h"
 
+#include <algorithm>
+
 eCampaign::eCampaign() {
     const auto types = eResourceTypeHelpers::extractResourceTypes(
                            eResourceType::allBasic);

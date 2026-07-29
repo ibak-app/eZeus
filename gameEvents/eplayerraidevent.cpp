@@ -7,6 +7,8 @@
 #include "engine/egifthelpers.h"
 #include "eraidresourceevent.h"
 
+#include <algorithm>
+
 ePlayerRaidEvent::ePlayerRaidEvent(
         const eCityId cid,
         const eGameEventBranch branch,

@@ -1,6 +1,7 @@
 #include "ethreadpool.h"
 
 #include <chrono>
+#include <algorithm>
 
 #include "evectorhelpers.h"
 #include "engine/egameboard.h"

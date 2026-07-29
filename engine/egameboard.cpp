@@ -99,6 +99,8 @@
 
 #include "buildings/pyramids/epyramid.h"
 
+#include <algorithm>
+
 #ifndef uint
 #define uint unsigned int
 #endif

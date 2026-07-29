@@ -7,6 +7,8 @@
 
 #include "ehorseranch.h"
 
+#include <algorithm>
+
 eHorseRanchEnclosure::eHorseRanchEnclosure(eGameBoard& board,
                                            const eCityId cid) :
     eBuildingWithResource(board, eBuildingType::horseRanchEnclosure, 4, 4,

@@ -5,6 +5,8 @@
 #include "engine/eevent.h"
 #include "elanguage.h"
 
+#include <algorithm>
+
 eMilitaryChangeEvent::eMilitaryChangeEvent(
         const eCityId cid,
         const eGameEventBranch branch,

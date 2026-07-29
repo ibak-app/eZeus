@@ -6,6 +6,8 @@
 
 #include "textures/egametextures.h"
 
+#include <algorithm>
+
 eStadium::eStadium(eGameBoard& board, const bool r,
                    const eCityId cid) :
     ePatrolTarget(board,

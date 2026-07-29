@@ -1,11 +1,12 @@
 #include "erequeststrikeevent.h"
 
-
 #include "engine/egameboard.h"
 #include "engine/eeventdata.h"
 #include "engine/eevent.h"
 #include "elanguage.h"
 #include "einvasionevent.h"
+
+#include <algorithm>
 
 eRequestStrikeEvent::eRequestStrikeEvent(
         const eCityId cid,

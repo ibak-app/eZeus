@@ -5,6 +5,8 @@
 #include "evectorhelpers.h"
 #include "engine/egameboard.h"
 
+#include <algorithm>
+
 eWorldCity::eWorldCity(const eCityType type,
                        const eCityId id,
                        const std::string& name,

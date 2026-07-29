@@ -1,6 +1,5 @@
 ﻿#include "esmallhouse.h"
 
-#include <algorithm>
 #include "textures/egametextures.h"
 #include "engine/egameboard.h"
 #include "engine/eplague.h"
@@ -13,6 +12,8 @@
 
 #include "elanguage.h"
 #include "enumbers.h"
+
+#include <algorithm>
 
 eSmallHouse::eSmallHouse(eGameBoard& board, const eCityId cid) :
     eHouseBase(board, eBuildingType::commonHouse, 2, 2,

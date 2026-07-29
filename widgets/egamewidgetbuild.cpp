@@ -29,6 +29,8 @@
 #include "estringhelpers.h"
 #include "audio/esounds.h"
 
+#include <algorithm>
+
 bool agoraRoadTile(eTile* const t) {
     if(!t) return false;
     if(!t->hasRoad()) return false;

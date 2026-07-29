@@ -14,6 +14,8 @@
 #include "engine/eeventdata.h"
 #include "enumbers.h"
 
+#include <algorithm>
+
 eBuildingType eHerosHall::sHeroTypeToHallType(const eHeroType type) {
     switch(type) {
     case eHeroType::achilles: return eBuildingType::achillesHall;

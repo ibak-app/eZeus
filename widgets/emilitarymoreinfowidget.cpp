@@ -7,6 +7,8 @@
 #include "elanguage.h"
 #include "escrollwidget.h"
 
+#include <algorithm>
+
 eMilitaryMoreInfoWidget::eMilitaryMoreInfoWidget(
         eMainWindow* const window,
         eMainWidget* const mw) :

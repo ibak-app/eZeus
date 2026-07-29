@@ -18,6 +18,7 @@
 
 #include <filesystem>
 namespace fs = std::filesystem;
+#include <algorithm>
 
 #include "pak/zeusfile.h"
 #include "pak/epakhelpers.h"

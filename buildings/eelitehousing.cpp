@@ -7,6 +7,8 @@
 #include "enumbers.h"
 #include "buildings/epalace.h"
 
+#include <algorithm>
+
 eEliteHousing::eEliteHousing(eGameBoard& board,
                              const eCityId cid) :
     eHouseBase(board, eBuildingType::eliteHousing,

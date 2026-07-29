@@ -14,6 +14,8 @@
 #include "widgets/elinewidget.h"
 #include "widgets/eminimap.h"
 
+#include <algorithm>
+
 class eOverviewEntry : public eWidget {
 public:
     using eWidget::eWidget;

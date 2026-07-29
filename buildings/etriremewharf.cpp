@@ -7,6 +7,8 @@
 #include "engine/egameboard.h"
 #include "enumbers.h"
 
+#include <algorithm>
+
 eTriremeWharf::eTriremeWharf(eGameBoard& board,
                              const eDiagonalOrientation o,
                              const eCityId cid) :

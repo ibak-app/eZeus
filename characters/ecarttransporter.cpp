@@ -10,6 +10,8 @@
 #include "ehorse.h"
 #include "echariot.h"
 
+#include <algorithm>
+
 eCartTransporter::eCartTransporter(eGameBoard& board) :
     eBasicPatroler(board, &eCharacterTextures::fTransporter,
                    eCharacterType::cartTransporter) {

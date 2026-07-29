@@ -6,6 +6,8 @@
 
 #include "emainwindow.h"
 
+#include <algorithm>
+
 eMiniMap::eMiniMap(eMainWindow* const window) :
     eWidget(window) {
     mTexture = &mTextures[eWorldDirection::N];

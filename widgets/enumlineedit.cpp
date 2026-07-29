@@ -1,5 +1,7 @@
 #include "enumlineedit.h"
 
+#include <algorithm>
+
 eNumLineEdit::eNumLineEdit(eMainWindow* const window) :
     eLineEdit(window) {
     setValue(0);

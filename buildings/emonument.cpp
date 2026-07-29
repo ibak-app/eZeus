@@ -2,6 +2,8 @@
 
 #include "engine/egameboard.h"
 
+#include <algorithm>
+
 eMonument::eMonument(eGameBoard& board,
                        const eBuildingType type,
                        const int sw, const int sh,

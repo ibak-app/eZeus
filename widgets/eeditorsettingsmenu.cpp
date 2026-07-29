@@ -21,6 +21,8 @@
 #include "engine/ecampaign.h"
 #include "evectorhelpers.h"
 
+#include <algorithm>
+
 void eEditorSettingsMenu::initialize(const bool first,
                                      eCampaign* const c,
                                      eEpisode* const ep,

@@ -4,6 +4,8 @@
 #include "characters/actions/ecarttransporteraction.h"
 #include "engine/egameboard.h"
 
+#include <algorithm>
+
 int eBuildingWithResource::addProduced(const eResourceType type, const int count) {
     const int c = add(type, count);
     const bool isPp = isPersonPlayer();

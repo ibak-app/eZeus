@@ -67,6 +67,8 @@
 #include "buildings/ehippodromepiece.h"
 #include "estringhelpers.h"
 
+#include <algorithm>
+
 eGameWidget::eGameWidget(eMainWindow* const window) :
     eMainWidget(window) {}
 

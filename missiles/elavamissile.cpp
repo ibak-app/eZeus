@@ -1,5 +1,7 @@
 #include "elavamissile.h"
 
+#include <algorithm>
+
 eLavaMissile::eLavaMissile(eGameBoard& board,
                            const std::vector<ePathPoint>& path) :
     eMissile(board, eMissileType::lava, path),

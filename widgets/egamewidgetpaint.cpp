@@ -27,6 +27,7 @@
 #include "eiteratesquare.h"
 
 #include <string>
+#include <algorithm>
 
 bool sDontDrawAppeal(const eTerrain terr) {
     return terr == eTerrain::stones ||

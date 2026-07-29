@@ -3,6 +3,8 @@
 #include "engine/egameboard.h"
 #include "engine/eguidedmovepathtask.h"
 
+#include <algorithm>
+
 ePatrolBuildingBase::ePatrolBuildingBase(
         eGameBoard& board,
         const eCharGenerator& charGen,

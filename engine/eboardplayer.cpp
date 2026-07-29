@@ -6,6 +6,8 @@
 #include "evectorhelpers.h"
 #include "egifthelpers.h"
 
+#include <algorithm>
+
 eBoardPlayer::eBoardPlayer(const ePlayerId pid, eGameBoard& board) :
     mBoard(board), mId(pid) {}
 

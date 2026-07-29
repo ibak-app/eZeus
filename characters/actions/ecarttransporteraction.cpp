@@ -7,6 +7,8 @@
 #include "engine/egameboard.h"
 #include "emovetoaction.h"
 
+#include <algorithm>
+
 eCartTransporterAction::eCartTransporterAction(
         eCharacter* const c,
         eBuildingWithResource* const b) :

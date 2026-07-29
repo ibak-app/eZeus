@@ -6,6 +6,7 @@
 #include "enumbers.h"
 
 #include <math.h>
+#include <algorithm>
 
 eEmploymentData::eEmploymentData(const ePopulationData& popData,
                                  const eBoardCity& city,

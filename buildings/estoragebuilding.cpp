@@ -3,6 +3,8 @@
 #include "engine/egameboard.h"
 #include "characters/ecarttransporter.h"
 
+#include <algorithm>
+
 eStorageBuilding::eStorageBuilding(eGameBoard& board,
                                    const eBuildingType type,
                                    const int sw, const int sh,

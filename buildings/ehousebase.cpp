@@ -7,6 +7,8 @@
 #include "characters/actions/ekillcharacterfinishfail.h"
 #include "enumbers.h"
 
+#include <algorithm>
+
 eHouseBase::eHouseBase(eGameBoard& board,
                        const eBuildingType type,
                        const int sw, const int sh,

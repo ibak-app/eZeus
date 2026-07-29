@@ -45,6 +45,8 @@
 #include "epathfinder.h"
 #include "eevent.h"
 
+#include <algorithm>
+
 eBoardCity::eBoardCity(const eCityId cid, eGameBoard& board) :
     mBoard(board),
     mId(cid),

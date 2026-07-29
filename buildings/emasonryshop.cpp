@@ -13,6 +13,8 @@
 #include "eiteratesquare.h"
 #include "engine/egameboard.h"
 
+#include <algorithm>
+
 eMasonryShop::eMasonryShop(eGameBoard& board, const eCityId cid) :
     eResourceCollectBuilding(board,
                              &eBuildingTextures::fMasonryShop,

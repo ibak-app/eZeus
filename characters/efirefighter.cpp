@@ -3,6 +3,8 @@
 #include "textures/egametextures.h"
 #include "engine/egameboard.h"
 
+#include <algorithm>
+
 eFireFighter::eFireFighter(eGameBoard& board) :
     eCharacter(board, eCharacterType::fireFighter),
     mTextures(eGameTextures::characters()),

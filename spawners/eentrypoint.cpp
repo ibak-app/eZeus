@@ -4,6 +4,8 @@
 #include "characters/esettler.h"
 #include "characters/actions/esettleraction.h"
 
+#include <algorithm>
+
 eEntryPoint::eEntryPoint(const int id,
                          eTile* const tile,
                          eGameBoard& board) :
