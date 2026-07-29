@@ -347,7 +347,7 @@ void eSanctuary::nextMonth() {
     }
     const auto& board = getBoard();
     auto cids = board.citiesOnBoard();
-    std::random_shuffle(cids.begin(), cids.end());
+    eRand::randomShuffle(cids);
     const auto thisTid = teamId();
     for(const auto cid : cids) {
         const auto tid = board.cityIdToTeamId(cid);

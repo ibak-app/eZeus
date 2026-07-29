@@ -9,7 +9,7 @@ ePlague::ePlague(const eCityId cid, eGameBoard& board) :
 
 void ePlague::randomSpread() {
     if(mHouses.empty()) return;
-    std::random_shuffle(mHouses.begin(), mHouses.end());
+    eRand::randomShuffle(mHouses);
     spreadFrom(mHouses[0]);
 }
 

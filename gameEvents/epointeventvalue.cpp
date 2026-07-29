@@ -27,7 +27,7 @@ void ePointEventValue::choosePointId() {
     for(int i = mMinPointId; i <= mMaxPointId; i++) {
         options.push_back(i);
     }
-    std::random_shuffle(options.begin(), options.end());
+    eRand::randomShuffle(options);
     for(const int i : options) {
         switch(mBType) {
         case eBannerTypeS::monsterPoint: {

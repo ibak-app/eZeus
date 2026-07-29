@@ -553,7 +553,7 @@ void eBoardCity::nextMonth() {
             if(soldiers > 20 && missingArmor == 0) {
                 auto enemyCids = mBoard.enemyCidsOnBoard(tid);
                 if(!enemyCids.empty()) {
-                    std::random_shuffle(enemyCids.begin(), enemyCids.end());
+                    eRand::randomShuffle(enemyCids);
                     const auto targetCid = enemyCids[0];
                     const auto& wboard = mBoard.world();
                     const auto wc = wboard.cityWithId(targetCid);
@@ -1365,7 +1365,7 @@ int eBoardCity::countAllowed(const eBuildingType t) const {
 
 eBuilding* eBoardCity::randomBuilding(const eBuildingValidator& v) const {
     auto blds = mTimedBuildings;
-    std::random_shuffle(blds.begin(), blds.end());
+    eRand::randomShuffle(blds);
     for(const auto b : blds) {
         const bool r = v(b);
         if(r) return b;
@@ -1572,7 +1572,7 @@ int eBoardCity::maxMonumentSpaceForResource(
 
 void eBoardCity::killCommonFolks(int toKill) {
     auto bs = mTimedBuildings;
-    std::random_shuffle(bs.begin(), bs.end());
+    eRand::randomShuffle(bs);
     for(const auto b : bs) {
         const auto bt = b->type();
         if(bt == eBuildingType::commonHouse) {
@@ -1596,7 +1596,7 @@ void eBoardCity::rockThrowerKilled() {
 
 void eBoardCity::hopliteKilled() {
     auto bs = mTimedBuildings;
-    std::random_shuffle(bs.begin(), bs.end());
+    eRand::randomShuffle(bs);
     for(const auto b : bs) {
         const auto bt = b->type();
         if(bt == eBuildingType::eliteHousing) {
@@ -1612,7 +1612,7 @@ void eBoardCity::hopliteKilled() {
 
 void eBoardCity::horsemanKilled() {
     auto bs = mTimedBuildings;
-    std::random_shuffle(bs.begin(), bs.end());
+    eRand::randomShuffle(bs);
     for(const auto b : bs) {
         const auto bt = b->type();
         if(bt == eBuildingType::eliteHousing) {

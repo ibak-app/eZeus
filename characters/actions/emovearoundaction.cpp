@@ -1,6 +1,7 @@
 #include "emovearoundaction.h"
 
 #include "characters/echaracter.h"
+#include "erand.h"
 
 eMoveAroundAction::eMoveAroundAction(eCharacter* const c,
                                      const int startX, const int startY,
@@ -54,7 +55,7 @@ eCharacterActionState eMoveAroundAction::nextTurn(eOrientation& turn) {
                                  eOrientation::left,
                                  eOrientation::topLeft,
                                  eOrientation::top};
-    std::random_shuffle(os.begin(), os.end());
+    eRand::randomShuffle(os);
     const auto c = character();
     const bool keepO = (eRand::rand() % (mMaxDist/2)) != 0;
     if(keepO) os.insert(os.begin(), c->orientation());

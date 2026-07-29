@@ -2483,7 +2483,7 @@ bool eBuilding::isEmptyHome() const {
 
 bool eBuilding::spreadFire() {
     auto dirs = gExtractDirections(eMoveDirection::allDirections);
-    std::random_shuffle(dirs.begin(), dirs.end());
+    eRand::randomShuffle(dirs);
     eTile* t = nullptr;
     for(const auto dir : dirs) {
         t = tileNeighbour(dir, [this](eTile* const tile) {

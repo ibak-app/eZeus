@@ -1714,7 +1714,7 @@ void eGameBoard::handleGamesEnd(const eGames game) {
         chances.push_back(eCityChance{id, chance});
     }
     if(chances.empty()) return;
-    std::random_shuffle(chances.begin(), chances.end());
+    eRand::randomShuffle(chances);
 
     eCityId winner = eCityId::neutralFriendly;
     for(const auto& c : chances) {
@@ -3100,7 +3100,7 @@ void eGameBoard::earthquake(eTile* const startTile, const int size) {
 //                                 eOrientation::bottomRight,
 //                                 eOrientation::bottomLeft,
 //                                 eOrientation::topLeft};
-//    std::random_shuffle(os.begin(), os.end());
+//    eRand::randomShuffle(os);
 //    for(int i = 0; i < 2; i++) {
 //        const auto o = os[i];
 //        const auto tt = startTile->neighbour<eTile>(o);
@@ -3114,7 +3114,7 @@ void eGameBoard::earthquake(eTile* const startTile, const int size) {
                                      eOrientation::bottomRight,
                                      eOrientation::bottomLeft,
                                      eOrientation::topLeft};
-        std::random_shuffle(os.begin(), os.end());
+        eRand::randomShuffle(os);
         if(eRand::rand() % 7) {
             os.insert(os.begin(), t.fLastO);
         }

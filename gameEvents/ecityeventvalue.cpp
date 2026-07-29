@@ -49,7 +49,7 @@ int eCityEventValue::chooseCityId() const {
     for(int i = mMinCityId; i <= mMaxCityId; i++) {
         options.push_back(i);
     }
-    std::random_shuffle(options.begin(), options.end());
+    eRand::randomShuffle(options);
     const auto& world = mBoard.world();
     for(const int i : options) {
         const auto cid = static_cast<eCityId>(i);

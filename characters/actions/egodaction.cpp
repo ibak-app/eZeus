@@ -108,7 +108,7 @@ bool eGodAction::lookForRangeAction(
                 tiles.push_back(t);
             }
         }
-        std::random_shuffle(tiles.begin(), tiles.end());
+        eRand::randomShuffle(tiles);
         for(const auto t : tiles) {
             const auto tt = act->find(t);
             if(!tt.target()) continue;

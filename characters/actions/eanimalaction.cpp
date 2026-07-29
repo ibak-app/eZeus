@@ -4,6 +4,7 @@
 #include "characters/echaracter.h"
 #include "ewaitaction.h"
 #include "enumbers.h"
+#include "erand.h"
 
 eAnimalAction::eAnimalAction(eCharacter* const c,
                              const int spawnerX, const int spawnerY,
