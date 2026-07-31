@@ -53,13 +53,21 @@ std::string eGameDir::i60BinaryPath() {
 
 std::string eGameDir::exeDir() {
 #ifdef __ANDROID__
-    // No executable directory on Android; anchor everything to the
-    // app-specific external storage. The user copies the original
-    // "Zeus and Poseidon" content there, next to the eZeus data dir:
-    //   Android/data/com.ibak.ezeus/files/         <- game dir (DATA, Audio, ...)
-    //   Android/data/com.ibak.ezeus/files/eZeus/   <- interface.e, XMLs, ...
-    const char* const d = SDL_AndroidGetExternalStoragePath();
-    return std::string(d ? d : "") + "/eZeus/Bin/";
+    // No executable directory on Android. Read the game from a plain
+    // shared-storage folder the user can fill with a file manager:
+    //   /sdcard/Zeus and Poseidon/         <- DATA, Audio, ...
+    //   /sdcard/Zeus and Poseidon/eZeus/   <- interface.e, XMLs, ...
+    // App-specific storage would be unreachable for the file manager,
+    // and files pushed there by adb end up owned by another user.
+    // Derive the storage root from the app-specific path rather than
+    // hardcoding /storage/emulated/0.
+    std::string root = "/sdcard";
+    if(const char* const d = SDL_AndroidGetExternalStoragePath()) {
+        const std::string p(d);
+        const auto pos = p.find("/Android/data/");
+        if(pos != std::string::npos) root = p.substr(0, pos);
+    }
+    return root + "/Zeus and Poseidon/eZeus/Bin/";
 #else
     const auto d = SDL_GetBasePath();
     const std::string str(d);

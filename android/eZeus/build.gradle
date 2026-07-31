@@ -40,6 +40,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            // Sign release with the debug key: these builds are shared
+            // directly (Telegram/USB), not published to a store.
+            signingConfig = signingConfigs.debug
         }
     }
 }
