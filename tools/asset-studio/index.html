@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eZeus Asset Studio</title>
+<style>
+  :root {
+    --bg: #181410; --panel: #241e16; --line: #3a3126;
+    --gold: #e2c88c; --gold-dim: #a8945f; --text: #d8cdb8;
+    --accent: #7fb069; --err: #d9776b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 15px/1.5 "Iowan Old Style", Georgia, serif;
+    padding: 1rem;
+  }
+  h1 { color: var(--gold); font-size: 1.6rem; letter-spacing: .06em; }
+  h1 small { color: var(--gold-dim); font-size: .9rem; letter-spacing: 0; }
+  h2 {
+    color: var(--gold); font-size: 1.05rem; margin: 0 0 .6rem;
+    text-transform: uppercase; letter-spacing: .12em;
+  }
+  main {
+    display: grid; gap: 1rem; margin-top: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  section {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 1rem;
+  }
+  .wide { grid-column: 1 / -1; }
+  details { margin-bottom: .45rem; }
+  summary {
+    cursor: pointer; color: var(--gold);
+    display: flex; justify-content: space-between;
+  }
+  summary .n { color: var(--gold-dim); }
+  .chips { display: flex; flex-wrap: wrap; gap: .3rem; padding: .5rem 0; }
+  .chip {
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 999px; padding: .05rem .6rem; font-size: .78rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  td, th { padding: .25rem .5rem; border-bottom: 1px solid var(--line); text-align: left; }
+  th { color: var(--gold-dim); font-weight: normal; }
+  td:last-child, th:last-child { text-align: right; }
+  .tpl { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .7rem; }
+  .tpl button {
+    background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: .3rem .7rem; cursor: pointer; font: inherit;
+    font-size: .82rem;
+  }
+  .tpl button:hover { border-color: var(--gold-dim); }
+  textarea {
+    width: 100%; min-height: 90px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; padding: .6rem;
+    font: inherit; font-size: .9rem; resize: vertical;
+  }
+  #generate {
+    margin-top: .6rem; background: var(--gold); color: #211a10; border: 0;
+    border-radius: 8px; padding: .55rem 1.4rem; font: inherit;
+    font-weight: bold; cursor: pointer;
+  }
+  #generate:disabled { opacity: .5; cursor: wait; }
+  #status { margin-left: .8rem; font-size: .85rem; color: var(--gold-dim); }
+  #status.err { color: var(--err); }
+  #gallery {
+    display: grid; gap: .6rem; margin-top: .8rem;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  #gallery a { display: block; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  #gallery img { width: 100%; display: block; }
+</style>
+</head>
+<body>
+<h1>⚡ eZeus Asset Studio <small>— mekanik referansı &amp; Nano Banana Pro üretim</small></h1>
+<main>
+  <section>
+    <h2>Oyun Mekanikleri</h2>
+    <div id="mechanics">yükleniyor…</div>
+  </section>
+
+  <section>
+    <h2>Asset Türleri</h2>
+    <div id="assets">yükleniyor…</div>
+  </section>
+
+  <section class="wide">
+    <h2>Yeni Asset Üret <small style="color:var(--gold-dim)">(Nano Banana Pro)</small></h2>
+    <div class="tpl" id="templates"></div>
+    <textarea id="prompt" placeholder="Asset açıklaması… (şablonlardan seç ya da kendin yaz)"></textarea>
+    <button id="generate">Üret</button><span id="status"></span>
+    <div id="gallery"></div>
+  </section>
+</main>
+<script>
+const TEMPLATES = {
+  '🏛 Bina sprite': 'Isometric building sprite for a 2000s-era Greek city-builder game (Zeus: Master of Olympus style). Painterly pixel-art look, 3/4 top-down diagonal view, warm Mediterranean palette, clean silhouette on a plain solid magenta background (for keying). Building: ',
+  '🚶 Walker sprite': 'Small isometric walker character sprite for a 2000s Greek city-builder game, painterly pixel-art, side-walking pose, plain magenta background. Character: ',
+  '🏺 Tanrı portresi': 'Portrait icon of a Greek god in the painted style of Zeus: Master of Olympus (2000) UI art — ornate frame, warm colors, dramatic lighting. God: ',
+  '🧱 Arazi dokusu': 'Seamless isometric terrain tile texture for a Greek city-builder, painterly, tileable. Terrain: ',
+  '🖼 UI paneli': 'Game UI panel texture in Zeus: Master of Olympus style — carved marble, gold trim, parchment. Element: ',
+  '🌊 Bodrum teması': 'Isometric building sprite in Zeus: Master of Olympus style adapted to the Bodrum peninsula (ancient Halicarnassus): whitewashed walls, blue shutters, bougainvillea, Aegean coast. Building: ',
+};
+
+const $ = q => document.querySelector(q);
+
+fetch('/api/mechanics').then(r => r.json()).then(d => {
+  $('#mechanics').innerHTML = Object.entries(d).map(([k, v]) => `
+    <details><summary>${k} <span class="n">${v.count}</span></summary>
+      <div class="chips">${v.items.map(i => `<span class="chip">${i}</span>`).join('')}</div>
+    </details>`).join('');
+});
+
+fetch('/api/assets').then(r => r.json()).then(d => {
+  $('#assets').innerHTML = Object.entries(d).map(([k, v]) => `
+    <details><summary>${k} <span class="n">${v.length}</span></summary>
+      <table><tr><th>Dosya</th><th>MB</th></tr>
+      ${v.map(f => `<tr><td>${f.name}</td><td>${f.sizeMB}</td></tr>`).join('')}
+      </table>
+    </details>`).join('');
+});
+
+$('#templates').innerHTML = Object.keys(TEMPLATES).map(k =>
+  `<button data-k="${k}">${k}</button>`).join('');
+$('#templates').addEventListener('click', e => {
+  const k = e.target.dataset.k;
+  if (k) { $('#prompt').value = TEMPLATES[k]; $('#prompt').focus(); }
+});
+
+function refreshGallery() {
+  fetch('/api/gallery').then(r => r.json()).then(files => {
+    $('#gallery').innerHTML = files.map(f =>
+      `<a href="/generated/${f}" target="_blank"><img src="/generated/${f}" alt="${f}"></a>`).join('');
+  });
+}
+refreshGallery();
+
+$('#generate').addEventListener('click', async () => {
+  const prompt = $('#prompt').value.trim();
+  if (!prompt) return;
+  const btn = $('#generate'), st = $('#status');
+  btn.disabled = true; st.className = ''; st.textContent = 'üretiliyor… (~15-40 sn)';
+  try {
+    const r = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({prompt}),
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    st.textContent = `✓ ${d.file} (${d.model})`;
+    refreshGallery();
+  } catch (err) {
+    st.className = 'err'; st.textContent = '✗ ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
