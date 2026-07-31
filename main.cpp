@@ -21,6 +21,21 @@
 #include "audio/emusic.h"
 #include "audio/esounds.h"
 
+// Non-throwing exists: the throwing overload aborts on Android when a
+// storage path is unreadable (uncaught filesystem_error).
+static bool fileExists(const std::string& path) {
+    std::error_code ec;
+    return std::filesystem::exists(path, ec);
+}
+
+// Startup errors must be visible on Android too — stdout is invisible
+// there and a silent exit looks like a crash.
+static void startupError(const std::string& text) {
+    printf("%s\n", text.c_str());
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "eZeus",
+                             text.c_str(), nullptr);
+}
+
 bool init() {
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         printf("SDL could not initialize! SDL Error: %s\n",
@@ -148,9 +163,11 @@ int main(int, char**) {
         }
     }
 
-    if(!std::filesystem::exists(eGameDir::iBinaryPath())) {
-        printf("Could not find interface textures!\n"
-               "Make sure you have interface.e file in eZeus directory.\n");
+    if(!fileExists(eGameDir::iBinaryPath())) {
+        startupError("Could not find interface textures!\n"
+                     "Make sure you have interface.e file in eZeus directory.\n"
+                     "Oyun dosyalari bulunamadi. 'Zeus and Poseidon' icerigini\n"
+                     "su klasore kopyalayin:\n" + eGameDir::path(""));
         close();
         return 1;
     }
@@ -172,7 +189,7 @@ int main(int, char**) {
     const auto checkTextureSize = [&found](const std::string& path,
                                            bool& setting) {
         if(!setting) return;
-        setting = std::filesystem::exists(path);
+        setting = fileExists(path);
         if(setting) found = true;
     };
     checkTextureSize(eGameDir::i15BinaryPath(), settings.fTinyTextures);
@@ -180,8 +197,9 @@ int main(int, char**) {
     checkTextureSize(eGameDir::i45BinaryPath(), settings.fMediumTextures);
     checkTextureSize(eGameDir::i60BinaryPath(), settings.fLargeTextures);
     if(!found) {
-        printf("Could not find any textures!\n"
-               "Make sure you have i15.e, i30.e, i45.e, or i60.e file in eZeus directory.\n");
+        startupError("Could not find any textures!\n"
+                     "Make sure you have i15.e, i30.e, i45.e, or i60.e "
+                     "file in eZeus directory.");
         close();
         return 1;
     }
