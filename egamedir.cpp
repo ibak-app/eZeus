@@ -1,6 +1,9 @@
 #include "egamedir.h"
 
 #include <SDL2/SDL_filesystem.h>
+#ifdef __ANDROID__
+#include <SDL2/SDL_system.h>
+#endif
 #include <fstream>
 
 std::string eGameDir::sPath;
@@ -49,9 +52,19 @@ std::string eGameDir::i60BinaryPath() {
 }
 
 std::string eGameDir::exeDir() {
+#ifdef __ANDROID__
+    // No executable directory on Android; anchor everything to the
+    // app-specific external storage. The user copies the original
+    // "Zeus and Poseidon" content there, next to the eZeus data dir:
+    //   Android/data/com.ibak.ezeus/files/         <- game dir (DATA, Audio, ...)
+    //   Android/data/com.ibak.ezeus/files/eZeus/   <- interface.e, XMLs, ...
+    const char* const d = SDL_AndroidGetExternalStoragePath();
+    return std::string(d ? d : "") + "/eZeus/Bin/";
+#else
     const auto d = SDL_GetBasePath();
     const std::string str(d);
     return str;
+#endif
 }
 
 std::string eGameDir::adventuresDir() {

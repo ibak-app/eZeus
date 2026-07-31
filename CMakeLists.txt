@@ -19,6 +19,22 @@ set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 set(SDLIMAGE_AVIF OFF)
 set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
+
+# The game only needs WAV/MP3/OGG audio and PNG/BMP images. Turning the
+# remaining codecs off keeps the satellite libraries self-contained
+# (no system codec lookups), which macOS and Android builds rely on.
+set(SDL2MIXER_MOD OFF CACHE BOOL "" FORCE)
+set(SDL2MIXER_MIDI OFF CACHE BOOL "" FORCE)
+set(SDL2MIXER_FLAC OFF CACHE BOOL "" FORCE)
+set(SDL2MIXER_OPUS OFF CACHE BOOL "" FORCE)
+set(SDL2MIXER_WAVPACK OFF CACHE BOOL "" FORCE)
+set(SDL2MIXER_GME OFF CACHE BOOL "" FORCE)
+set(SDL2MIXER_SAMPLES OFF CACHE BOOL "" FORCE)
+set(SDL2IMAGE_TIF OFF CACHE BOOL "" FORCE)
+set(SDL2IMAGE_WEBP OFF CACHE BOOL "" FORCE)
+set(SDL2IMAGE_JXL OFF CACHE BOOL "" FORCE)
+set(SDL2IMAGE_SAMPLES OFF CACHE BOOL "" FORCE)
+set(SDL2TTF_SAMPLES OFF CACHE BOOL "" FORCE)
 if(MINGW)
     add_compile_options(-Wa,-mbig-obj)
 endif()
@@ -59,7 +75,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SDL2_mixer)
 
-add_executable(eZeus
+set(EZEUS_SOURCES
     audio/egodsounds.cpp
     audio/egodsounds.h
     audio/eherosounds.cpp
@@ -3343,6 +3359,13 @@ add_executable(eZeus
     textureTemplates/zeusStatue
     textureTemplates/zeusTrees
 )
+
+if(ANDROID)
+    # SDLActivity loads the game as a shared library and calls SDL_main.
+    add_library(eZeus SHARED ${EZEUS_SOURCES})
+else()
+    add_executable(eZeus ${EZEUS_SOURCES})
+endif()
 
 target_include_directories(eZeus PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

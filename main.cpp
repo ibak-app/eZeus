@@ -1,4 +1,9 @@
+#ifdef __ANDROID__
+// SDLActivity calls SDL_main via JNI, so SDL2's main wrapper is required.
+#include <SDL2/SDL_main.h>
+#else
 #define SDL_MAIN_HANDLED
+#endif
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
@@ -99,7 +104,7 @@ bool getDisplayResolutions(std::vector<SDL_DisplayMode>& resolutions) {
     return true;
 }
 
-int main() {
+int main(int, char**) {
     if(!init()) {
         printf("Failed to initialize!\n");
         close();
@@ -153,6 +158,16 @@ int main() {
     eNumbers::sLoad();
     eSettings settings;
     settings.read();
+#ifdef __ANDROID__
+    // Always render at the device's native resolution on Android.
+    {
+        SDL_DisplayMode dm;
+        if(SDL_GetCurrentDisplayMode(0, &dm) == 0) {
+            settings.fRes = eResolution(dm.w, dm.h);
+            settings.fFullscreen = true;
+        }
+    }
+#endif
     bool found = false;
     const auto checkTextureSize = [&found](const std::string& path,
                                            bool& setting) {
