@@ -28,7 +28,6 @@ win32 {
     LIBS += -lpthread
     LIBS += -L/usr/lib/x86_64-linux-gnu
     LIBS += -lstdc++fs
-    LIBS += -lnoise
 }
 LIBS += -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 

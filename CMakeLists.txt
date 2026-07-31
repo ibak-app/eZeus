@@ -808,6 +808,7 @@ set(EZEUS_SOURCES
     engine/eknownendpathfinder.h
     engine/emapgenerator.cpp
     engine/emapgenerator.h
+    engine/eperlin.h
     engine/emessageeventtype.h
     engine/emilitaryaid.cpp
     engine/emilitaryaid.h
@@ -3392,22 +3393,6 @@ install(TARGETS eZeus
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
-if(LINUX)
-    find_path(NOISE_INCLUDE_DIR
-        NAMES libnoise/noise.h
-              libnoise/module/perlin.h
-        REQUIRED
-    )
-
-    find_library(NOISE_LIBRARY
-        NAMES noise
-        REQUIRED
-    )
-
-    target_include_directories(eZeus PRIVATE ${NOISE_INCLUDE_DIR})
-    target_link_libraries(eZeus PRIVATE ${NOISE_LIBRARY})
-endif()
 
 target_link_libraries(eZeus PRIVATE SDL2::SDL2)
 target_link_libraries(eZeus PRIVATE SDL2_ttf::SDL2_ttf)

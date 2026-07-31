@@ -168,7 +168,6 @@ void eBoardSettingsMenu::initialize(
     addWidget(resizeButt);
     resizeButt->align(eAlignment::hcenter);
 
-#ifdef __unix__
     const auto generateButt = new eFramedButton(window());
     generateButt->setUnderline(false);
     generateButt->setText(eLanguage::text("generate"));
@@ -340,7 +339,6 @@ void eBoardSettingsMenu::initialize(
     });
     addWidget(generateButt);
     generateButt->align(eAlignment::hcenter);
-#endif
 
     const auto clearButt = new eFramedButton(window());
     clearButt->setUnderline(false);

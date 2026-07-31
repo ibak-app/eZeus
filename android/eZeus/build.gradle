@@ -14,7 +14,10 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_STL=c++_shared'
+                // POLICY_VERSION_MINIMUM: vendored freetype (SDL2_ttf) still
+                // declares cmake_minimum_required < 3.5, which CMake 4 rejects.
+                arguments '-DANDROID_STL=c++_shared',
+                          '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
             }
         }
         ndk {

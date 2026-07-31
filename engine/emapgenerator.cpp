@@ -1,10 +1,6 @@
 #include "emapgenerator.h"
 
-#ifdef __unix__
-
-#include <libnoise/noise.h>
-#include <libnoise/module/perlin.h>
-using namespace noise;
+#include "eperlin.h"
 
 #include "spawners/eboarspawner.h"
 #include "spawners/edeerspawner.h"
@@ -30,7 +26,7 @@ eMapGenerator::eMapGenerator(eGameBoard& board) :
 
 void eMapGenerator::generateTerrain(const eMGS& settings) {
     (void)settings;
-    module::Perlin p;
+    ePerlin p;
     p.SetSeed(eRand::rand());
     p.SetOctaveCount(4.0);
     p.SetFrequency(1.0);
@@ -176,7 +172,7 @@ void eMapGenerator::generateStonesResource(
 
     while(generated < min && it++ < maxIt) {
         const double div = 12.5;
-        module::Perlin p;
+        ePerlin p;
         p.SetSeed(eRand::rand());
         p.SetOctaveCount(1.0);
         p.SetFrequency(1.0);
@@ -262,5 +258,3 @@ void eMapGenerator::generate(const eMGS& settings) {
 //    mBoard.updateMarbleTiles();
     mBoard.scheduleTerrainUpdate();
 }
-
-#endif
