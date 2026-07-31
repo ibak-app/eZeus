@@ -73,3 +73,6 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+
+# Local build directories
+build-*/

@@ -3348,6 +3348,22 @@ target_include_directories(eZeus PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+# The sources include the satellite libraries as <SDL2/SDL_image.h> etc., which
+# is how they are laid out once installed system-wide. FetchContent leaves them
+# flat in their source trees, so mirror them under an SDL2/ prefix.
+set(EZEUS_SDL2_SHIM ${CMAKE_CURRENT_BINARY_DIR}/sdl2-shim)
+file(MAKE_DIRECTORY ${EZEUS_SDL2_SHIM}/SDL2)
+foreach(header
+    ${sdl2_image_SOURCE_DIR}/include/SDL_image.h
+    ${sdl2_mixer_SOURCE_DIR}/include/SDL_mixer.h
+    ${sdl2_ttf_SOURCE_DIR}/SDL_ttf.h
+)
+    get_filename_component(headerName ${header} NAME)
+    file(CREATE_LINK ${header} ${EZEUS_SDL2_SHIM}/SDL2/${headerName} SYMBOLIC)
+endforeach()
+
+target_include_directories(eZeus PRIVATE ${EZEUS_SDL2_SHIM})
+
 include(GNUInstallDirs)
 install(TARGETS eZeus
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
