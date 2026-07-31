@@ -380,8 +380,8 @@ void eGameWidget::paintEvent(ePainter& p) {
     if(updateTips) updateTipPositions();
     mBoard->incFrame();
 
-    const bool iterate = mSpeedId == sMaxSpeedId;
-    const int iMax = iterate ? 5 : 1;
+    const int iMax = sIters[mSpeedId];
+    const bool iterate = iMax > 1;
     for(int i = 0; i < iMax; i++) {
         mBoard->scheduleDataUpdate();
         mBoard->updateAppealMapIfNeeded();

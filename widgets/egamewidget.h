@@ -298,7 +298,12 @@ private:
     bool mRotate = false;
     int mRotateId = 0;
 
-    const int sSpeeds[6] = {2, 10, 25, 50, 100, 100};
+    // Time added to the simulation per frame for each speed level.
+    // Levels past 100 keep the per-step increment at 100 and instead
+    // run multiple simulation iterations per frame (see sIters) —
+    // large single increments would break walker/event granularity.
+    const int sSpeeds[8] = {2, 10, 25, 50, 100, 100, 100, 100};
+    const int sIters[8] = {1, 1, 1, 1, 1, 5, 10, 20};
     const int sMaxSpeedId = int(std::size(sSpeeds)) - 1;
 
     bool mPaused = false;
