@@ -106,13 +106,27 @@ void eMainWindow::setResolution(const eResolution& res) {
     const int w = res.width();
     const int h = res.height();
     SDL_SetWindowSize(mSdlWindow, w, h);
+    // Keep the scaled output in sync when the resolution changes
+    // while in desktop fullscreen.
+    if(mSettings.fFullscreen) {
+        SDL_RenderSetLogicalSize(mSdlRenderer, w, h);
+    }
 }
 
 void eMainWindow::setFullscreen(const bool f) {
     if(mSettings.fFullscreen == f && !mFirstFullscrenSetting) return;
     mFirstFullscrenSetting = false;
     mSettings.fFullscreen = f;
-    SDL_SetWindowFullscreen(mSdlWindow, f ? SDL_WINDOW_FULLSCREEN : 0);
+    // Desktop fullscreen avoids display mode switches (required for
+    // smooth fullscreen on macOS); the logical size keeps the game
+    // rendering at the configured resolution, scaled to the screen.
+    SDL_SetWindowFullscreen(mSdlWindow, f ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+    const auto& res = mSettings.fRes;
+    if(f) {
+        SDL_RenderSetLogicalSize(mSdlRenderer, res.width(), res.height());
+    } else {
+        SDL_RenderSetLogicalSize(mSdlRenderer, 0, 0);
+    }
 }
 
 void eMainWindow::startGameAction(eGameBoard* const board,
