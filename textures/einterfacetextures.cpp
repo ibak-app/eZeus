@@ -1253,7 +1253,10 @@ void eInterfaceTextures::load() {
         // replacement cannot simply be dropped in beside it. Look for a
         // loose override first and fall back to the original when absent.
         {
-            const auto custom = eGameDir::path("Halikarnassos_FE_MainMenu.jpg");
+            // Beside interface.e in the eZeus directory, not in the
+            // original game's root.
+            const auto custom = eGameDir::exeDir() +
+                                "../Halikarnassos_FE_MainMenu.jpg";
             if(eFs::exists(custom)) {
                 const auto tex = std::make_shared<eTexture>();
                 if(tex->load(fRenderer, custom)) fMainMenuImage = tex;

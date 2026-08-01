@@ -87,7 +87,7 @@ void eFileWidget::intialize(const std::string& title,
 
     std::map<time_t, fs::path> sorted;
     if(eFs::exists(folder)) {
-        for(const auto& entry : fs::directory_iterator(folder)) {
+        for(const auto& entry : eFs::listDirectory(folder)) {
             const auto path = entry.path();
             const auto ext = path.extension();
             if(ext != ".ez") continue;
@@ -98,6 +98,14 @@ void eFileWidget::intialize(const std::string& title,
     }
 
     int y = 0;
+#ifdef __ANDROID__
+    // Rows are packed edge-to-edge below; on a phone that makes
+    // neighbouring rows nearly impossible to tell apart or tap
+    // individually once they're grown to a finger-sized target.
+    const int rowGap = resolution().smallPadding();
+#else
+    const int rowGap = 0;
+#endif
     for(const auto& entry : sorted) {
         const auto path = entry.second;
         const auto name = path.filename().stem().u8string();
@@ -114,9 +122,10 @@ void eFileWidget::intialize(const std::string& title,
         b->setNoPadding();
         b->fitContent();
         b->setWidth(swwidth);
+        b->padToTouchTarget();
         filesWidget->addWidget(b);
         b->setY(y);
-        y += b->height();
+        y += b->height() + rowGap;
         b->setPressAction([this, name]() {
             setFileName(name);
         });

@@ -200,6 +200,7 @@ void eMessageBox::initialize(eGameBoard& board,
         surrenderB->setUnderline(false);
         surrenderB->setText(eLanguage::zeusText(44, 282));
         surrenderB->fitContent();
+        surrenderB->padToTouchTarget();
         wid->addWidget(surrenderB);
         surrenderB->setPressAction([this, ed]() {
             if(ed.fA0) ed.fA0();
@@ -215,6 +216,7 @@ void eMessageBox::initialize(eGameBoard& board,
                                 std::to_string(ed.fBribe));
         bribeB->setText(bribeStr);
         bribeB->fitContent();
+        bribeB->padToTouchTarget();
         wid->addWidget(bribeB);
         bribeB->setPressAction([this, ed]() {
             if(ed.fA1) ed.fA1();
@@ -227,6 +229,7 @@ void eMessageBox::initialize(eGameBoard& board,
         fightToDefend->setUnderline(false);
         fightToDefend->setText(eLanguage::zeusText(44, 283));
         fightToDefend->fitContent();
+        fightToDefend->padToTouchTarget();
         wid->addWidget(fightToDefend);
         fightToDefend->setPressAction([this, ed]() {
             if(ed.fA2) ed.fA2();
@@ -262,6 +265,7 @@ void eMessageBox::initialize(eGameBoard& board,
         acceptB->setUnderline(false);
         acceptB->setText(eLanguage::zeusText(44, 209));
         acceptB->fitContent();
+        acceptB->padToTouchTarget();
         if(type == eResourceType::drachmas) {
             wid->addWidget(acceptB);
             acceptB->setPressAction([this, ed]() {
@@ -317,6 +321,7 @@ void eMessageBox::initialize(eGameBoard& board,
         postponeB->setUnderline(false);
         postponeB->setText(eLanguage::zeusText(44, 211));
         postponeB->fitContent();
+        postponeB->padToTouchTarget();
         wid->addWidget(postponeB);
         postponeB->setPressAction([this, ed]() {
             if(ed.fA1) ed.fA1();
@@ -329,6 +334,7 @@ void eMessageBox::initialize(eGameBoard& board,
         declineB->setUnderline(false);
         declineB->setText(eLanguage::zeusText(44, 210));
         declineB->fitContent();
+        declineB->padToTouchTarget();
         wid->addWidget(declineB);
         declineB->setPressAction([this, ed]() {
             if(ed.fA2) ed.fA2();
@@ -373,6 +379,7 @@ void eMessageBox::initialize(eGameBoard& board,
         a0B->setUnderline(false);
         a0B->setText(eLanguage::zeusText(44, 275));
         a0B->fitContent();
+        a0B->padToTouchTarget();
 
         if(type == eResourceType::drachmas) {
             wid->addWidget(a0B);
@@ -420,6 +427,7 @@ void eMessageBox::initialize(eGameBoard& board,
         a1B->setUnderline(false);
         a1B->setText(eLanguage::zeusText(44, 211));
         a1B->fitContent();
+        a1B->padToTouchTarget();
         wid->addWidget(a1B);
         a1B->setPressAction([this, ed]() {
             if(ed.fA1) ed.fA1();
@@ -432,6 +440,7 @@ void eMessageBox::initialize(eGameBoard& board,
         a2B->setUnderline(false);
         a2B->setText(eLanguage::zeusText(44, 212));
         a2B->fitContent();
+        a2B->padToTouchTarget();
         wid->addWidget(a2B);
         a2B->setPressAction([this, ed]() {
             if(ed.fA2) ed.fA2();
@@ -465,6 +474,7 @@ void eMessageBox::initialize(eGameBoard& board,
         a0B->setUnderline(false);
         a0B->setText(eLanguage::zeusText(44, 275));
         a0B->fitContent();
+        a0B->padToTouchTarget();
         wid->addWidget(a0B);
         if(ed.fCA0) {
             a0B->setPressAction([this, ed]() {
@@ -483,6 +493,7 @@ void eMessageBox::initialize(eGameBoard& board,
         a1B->setUnderline(false);
         a1B->setText(eLanguage::zeusText(44, 211));
         a1B->fitContent();
+        a1B->padToTouchTarget();
         wid->addWidget(a1B);
         a1B->setPressAction([this, ed]() {
             if(ed.fA1) ed.fA1();
@@ -495,6 +506,7 @@ void eMessageBox::initialize(eGameBoard& board,
         a2B->setUnderline(false);
         a2B->setText(eLanguage::zeusText(44, 212));
         a2B->fitContent();
+        a2B->padToTouchTarget();
         wid->addWidget(a2B);
         a2B->setPressAction([this, ed]() {
             if(ed.fA2) ed.fA2();

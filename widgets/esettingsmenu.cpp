@@ -35,6 +35,7 @@ eWidget* createTextureBox(eMainWindow* const window,
     b->setChecked(checked);
     b->setCheckAction(checkA);
     b->fitContent();
+    b->padToTouchTarget();
     if(missing) b->hide();
 
     const auto l = new eLabel(window);
@@ -47,6 +48,11 @@ eWidget* createTextureBox(eMainWindow* const window,
     w->addWidget(l);
     l->setX(b->width() + p);
     w->fitContent();
+#ifdef __ANDROID__
+    // padToTouchTarget() above may have made the checkbox taller than
+    // the label; keep the label centered on it instead of stuck at top.
+    l->align(eAlignment::vcenter);
+#endif
 
     return w;
 }
@@ -74,9 +80,22 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
     inner->move(2*p, 2*p);
     inner->resize(frame->width() - 4*p, frame->height() - 4*p);
 
+    const int colh = inner->height();
+
+#ifdef __ANDROID__
+    // On Android col2/col3 below never get any content (neither the
+    // resolution list nor the windowed/fullscreen toggle applies), so a
+    // 3-column layout would leave two thirds of the dialog empty; give
+    // col1 the full width instead of a cramped third of it.
+    const auto col1 = new eWidget(window());
+    col1->setNoPadding();
+    col1->setWidth(inner->width());
+    col1->setHeight(colh);
+    inner->addWidget(col1);
+    (void)fullscreenA;
+#else
     const int colm = 2*p;
     const int colw = (inner->width() - 2*colm)/3;
-    const int colh = inner->height();
 
     const auto col1 = new eWidget(window());
     col1->setNoPadding();
@@ -98,7 +117,6 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
     inner->addWidget(col3);
     col3->setX(2*colw + 2*p + 2*colm);
 
-#ifndef __ANDROID__
     // On Android the surface size is fixed by the OS, so neither the
     // resolution list nor the windowed/fullscreen toggle applies.
     {
@@ -159,8 +177,6 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
         });
         fs->align(eAlignment::hcenter);
     }
-#else
-    (void)fullscreenA;
 #endif
 
     {

@@ -27,7 +27,13 @@ void eTopBarWidget::initialize() {
     s1->setWidth(mult*20);
 
     mCityLabel = new eLabel("-", window());
+#ifdef __ANDROID__
+    // Same reasoning as eTopWidget: the desktop small size is unreadable
+    // on a phone screen.
+    mCityLabel->setFontSize(resolution().touchFontSize(resolution().smallFontSize()));
+#else
     mCityLabel->setSmallFontSize();
+#endif
     mCityLabel->setNoPadding();
     mCityLabel->fitContent();
 
@@ -53,7 +59,11 @@ void eTopBarWidget::initialize() {
         dw->align(eAlignment::center);
     });
     const eDate date(30, eMonth::january, -1500);
+#ifdef __ANDROID__
+    mDateLabel->setFontSize(resolution().touchFontSize(resolution().smallFontSize()));
+#else
     mDateLabel->setSmallFontSize();
+#endif
     mDateLabel->setText(date.shortString());
     mDateLabel->fitContent();
     mDateLabel->setEnabled(false);
@@ -71,7 +81,14 @@ void eTopBarWidget::initialize() {
     addWidget(mDateLabel);
     addWidget(s4);
 
+#ifdef __ANDROID__
+    // Grown to match the touch-scaled text set above; paintEvent() below
+    // tiles the background texture vertically too so this doesn't leave
+    // a gap under the bar.
+    setHeight(resolution().touchFontSize(12*mult));
+#else
     setHeight(12*mult);
+#endif
 
     mCityLabel->align(eAlignment::vcenter);
     mDrachmasWidget->align(eAlignment::vcenter);
@@ -122,11 +139,17 @@ void eTopBarWidget::paintEvent(ePainter& p) {
         const auto& intrfc = eGameTextures::interface()[iRes];
         const auto& tex = intrfc.fGameTopBar;
         const int texWidth = tex->width();
+        const int texHeight = tex->height();
         const auto& rend = p.renderer();
-        bool flip = false;
-        for(int x = width() - texWidth; x > -texWidth; x -= texWidth) {
-            tex->render(rend, x, 0, flip);
-            flip = !flip;
+        // On Android the bar is taller than a single tile (see
+        // touchFontSize() above), so repeat the horizontal sweep down
+        // the full height instead of leaving bare space underneath.
+        for(int y = 0; y < height(); y += texHeight) {
+            bool flip = false;
+            for(int x = width() - texWidth; x > -texWidth; x -= texWidth) {
+                tex->render(rend, x, y, flip);
+                flip = !flip;
+            }
         }
     } else {
         mDateLabel->setEnabled(false);

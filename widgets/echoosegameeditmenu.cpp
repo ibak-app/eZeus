@@ -83,7 +83,7 @@ void eChooseGameEditMenu::initialize(const bool editor) {
     {
         const auto folder = eGameDir::adventuresDir();
         eFs::createDirectories(folder);
-        for(const auto& entry : fs::directory_iterator(folder)) {
+        for(const auto& entry : eFs::listDirectory(folder)) {
             const bool dir = entry.is_directory();
             if(!dir) continue;
             const auto path = entry.path();
@@ -97,7 +97,7 @@ void eChooseGameEditMenu::initialize(const bool editor) {
     {
         std::function<void(std::string)> procesFolder;
         procesFolder = [&](const std::string& folder) {
-            for(const auto& entry : fs::directory_iterator(folder)) {
+            for(const auto& entry : eFs::listDirectory(folder)) {
                 const bool dir = entry.is_directory();
                 const auto path = entry.path();
                 const std::string pathStr = path.u8string();
@@ -397,10 +397,17 @@ void eChooseGameEditMenu::initialize(const bool editor) {
         bool first = true;
         for(const auto& g : glossaries) {
             const auto w = new eButtonBase(window());
+#ifdef __ANDROID__
+            // Tiny is unreadable on a phone; bump it to small like the
+            // other dialog lists.
+            w->setSmallFontSize();
+#else
             w->setTinyFontSize();
+#endif
             w->setNoPadding();
             w->setText(g.fTitle);
             w->fitContent();
+            w->padToTouchTarget();
             w->setMouseEnterAction([w]() {
                 w->setYellowFontColor();
             });
@@ -424,7 +431,13 @@ void eChooseGameEditMenu::initialize(const bool editor) {
             scrollArea->addWidget(w);
         }
 
+#ifdef __ANDROID__
+        // Packed rows are hard to tell apart once each has been grown
+        // to a finger-sized target; give them breathing room.
+        scrollArea->stackVertically(resolution().smallPadding());
+#else
         scrollArea->stackVertically();
+#endif
         scrollArea->setNoPadding();
         scrollArea->fitContent();
         scrollCont->setScrollArea(scrollArea);

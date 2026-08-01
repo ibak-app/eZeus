@@ -22,7 +22,13 @@ public:
         mText = new eLabel(window());
         mText->setX(1.5*mIcon->width());
         mText->setPadding(0);
+#ifdef __ANDROID__
+        // The desktop small size reads fine on a monitor but is too
+        // small to make out on a phone held at arm's length.
+        mText->setFontSize(resolution().touchFontSize(resolution().smallFontSize()));
+#else
         mText->setSmallFontSize();
+#endif
 
         addWidget(mIcon);
         addWidget(mText);

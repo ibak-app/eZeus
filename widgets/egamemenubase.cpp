@@ -2,6 +2,8 @@
 
 #include "datawidgets/edatawidget.h"
 
+#include <algorithm>
+
 void eGameMenuBase::initialize() {
     int x;
     int y;
@@ -34,6 +36,9 @@ eCheckableButton* eGameMenuBase::addButton(
         const eTextureCollection& texs,
         const eWid& w) {
     const auto b = eCheckableButton::sCreate(texs, window(), mButtonsWidget);
+    // sCreate() already ran fitContent(); grow the tap area without
+    // touching the crisp, centered icon texture.
+    b->padToTouchTarget();
     mButtons.push_back(b);
     mWidgets.push_back(w);
     return b;
@@ -60,6 +65,12 @@ void eGameMenuBase::layoutButtons() {
     default:
         margin = 2;
     }
+#ifdef __ANDROID__
+    // The buttons themselves were just grown by padToTouchTarget(); a
+    // 2px margin between them is imperceptible next to that, so give
+    // fingers a real gap to land in between the side-panel buttons.
+    margin = std::max(margin, 10.0);
+#endif
     const int n = mButtons.size();
     const int buttH = mButtons.front()->height();
     const int h = n*(buttH + margin);

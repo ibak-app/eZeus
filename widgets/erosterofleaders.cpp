@@ -154,6 +154,14 @@ void eRosterOfLeaders::initialize() {
         const auto leaders = eRosterOfLeaders::sLeaders();
 
         int y = 0;
+#ifdef __ANDROID__
+        // Rows are packed edge-to-edge below; on a phone that makes
+        // neighbouring rows nearly impossible to tell apart or tap
+        // individually once they're grown to a finger-sized target.
+        const int rowGap = resolution().smallPadding();
+#else
+        const int rowGap = 0;
+#endif
         const auto selectedB = std::make_shared<eButton*>(nullptr);
         for(const auto& name : leaders) {
             const auto b = new eButton(name, window());
@@ -173,9 +181,10 @@ void eRosterOfLeaders::initialize() {
             b->setNoPadding();
             b->fitContent();
             b->setWidth(swwidth);
+            b->padToTouchTarget();
             filesWidget->addWidget(b);
             b->setY(y);
-            y += b->height();
+            y += b->height() + rowGap;
             b->setPressAction([b, selected, selectedB]() {
                 if(*selectedB) {
                     (*selectedB)->setDarkFontColor();
@@ -200,7 +209,7 @@ std::vector<std::string> eRosterOfLeaders::sLeaders() {
     std::vector<std::string> leaders;
     const auto folder = eGameDir::saveDir();
     if(eFs::exists(folder)) {
-        for(const auto& entry : fs::directory_iterator(folder)) {
+        for(const auto& entry : eFs::listDirectory(folder)) {
             const bool id = entry.is_directory();
             if(!id) continue;
             const auto path = entry.path();

@@ -173,6 +173,9 @@ eWidget* eGameMenu::createSubButtons(
 
         const auto createButton = [&](const eTextureCollection& texs) {
             const auto b = eButton::sCreate(texs, window(), result);
+            // sCreate() already ran fitContent(); grow the tap area
+            // without touching the crisp, centered icon texture.
+            b->padToTouchTarget();
             b->setPressAction(c.fPressedFunc);
             b->setMouseEnterAction([c, this]() {
                 mNameLabel->setText(c.fName);
