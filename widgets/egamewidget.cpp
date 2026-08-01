@@ -1820,6 +1820,7 @@ void eGameWidget::addTouchControls() {
     // Sit the finished row just above the bottom edge.
     const int y = height() - rowHeight - p;
     for(const auto& b : row) b->move(b->x(), y);
+    mTouchControlCount = row.size();
 }
 
 void eGameWidget::updateTouchControls() {

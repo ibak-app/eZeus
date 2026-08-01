@@ -385,6 +385,7 @@ private:
     eFramedButton* mPauseButton = nullptr;
     eFramedButton* mSpeedLabel = nullptr;
     eFramedButton* mCancelButton = nullptr;
+    int mTouchControlCount = 0;
     eArmyMenu* mAm = nullptr;
 
     eWorldWidget* mWW = nullptr;

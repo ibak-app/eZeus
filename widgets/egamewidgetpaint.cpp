@@ -387,7 +387,10 @@ void eGameWidget::paintEvent(ePainter& p) {
         mBoard->scheduleDataUpdate();
         mBoard->updateAppealMapIfNeeded();
         mBoard->handleFinishedTasks();
-        const int nc = children().size() - mTips.size();
+        // This count gates the simulation on "no windows are open", so the
+        // permanent touch controls must not be mistaken for open windows —
+        // they would freeze time outright.
+        const int nc = children().size() - mTips.size() - mTouchControlCount;
         const bool incTime = !mPaused && !mLocked && !mMsgBox && !mInfoWidget && nc < 6;
         if(incTime) {
             const bool lost = mBoard->episodeLost();
