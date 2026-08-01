@@ -1,4 +1,5 @@
 #include "emainwindow.h"
+#include "efilesystem.h"
 
 #include "widgets/emainmenu.h"
 #include "widgets/esettingsmenu.h"
@@ -41,10 +42,10 @@ eMainWindow::~eMainWindow() {
 }
 
 bool eMainWindow::initialize(const eSettings& settings) {
-    const auto& res = settings.fRes;
-    const int w = res.width();
-    const int h = res.height();
-    const auto window = SDL_CreateWindow("eZeus",
+    eSettings sett = settings;
+    const int w = sett.fRes.width();
+    const int h = sett.fRes.height();
+    const auto window = SDL_CreateWindow("Halikarnassos",
                                          SDL_WINDOWPOS_UNDEFINED,
                                          SDL_WINDOWPOS_UNDEFINED,
                                          w, h, SDL_WINDOW_SHOWN);
@@ -68,9 +69,21 @@ bool eMainWindow::initialize(const eSettings& settings) {
     if(mSdlRenderer) SDL_DestroyRenderer(mSdlRenderer);
     mSdlWindow = window;
     mSdlRenderer = renderer;
-    setResolution(res);
-    setFullscreen(settings.fFullscreen);
-    mSettings = settings;
+#ifdef __ANDROID__
+    // The requested size is ignored on Android — the window always covers
+    // the screen. Adopt the surface's real (landscape) size, otherwise the
+    // UI is laid out for the device's portrait display mode and ends up
+    // entirely off-screen.
+    {
+        int outW = 0;
+        int outH = 0;
+        SDL_GetRendererOutputSize(renderer, &outW, &outH);
+        if(outW > 0 && outH > 0) sett.fRes = eResolution(outW, outH);
+    }
+#endif
+    setResolution(sett.fRes);
+    setFullscreen(sett.fFullscreen);
+    mSettings = sett;
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     const std::string icoPath = eGameDir::path("zeus.ico");
@@ -100,6 +113,12 @@ void eMainWindow::addSlot(const eSlot& slot) {
 }
 
 void eMainWindow::setResolution(const eResolution& res) {
+#ifdef __ANDROID__
+    // The surface size is fixed by the OS; honouring a picked resolution
+    // would only letterbox the game inside its own window.
+    (void)res;
+    return;
+#else
     if(mSettings.fRes == res && !mFirstFullscrenSetting) return;
     mFirstResolutionSetting = false;
     mSettings.fRes = res;
@@ -111,9 +130,19 @@ void eMainWindow::setResolution(const eResolution& res) {
     if(mSettings.fFullscreen) {
         SDL_RenderSetLogicalSize(mSdlRenderer, w, h);
     }
+#endif
 }
 
 void eMainWindow::setFullscreen(const bool f) {
+#ifdef __ANDROID__
+    // Always fullscreen, drawn 1:1 into the surface — no logical scaling,
+    // otherwise the picked desktop resolution letterboxes the game.
+    (void)f;
+    mSettings.fFullscreen = true;
+    mFirstFullscrenSetting = false;
+    SDL_RenderSetLogicalSize(mSdlRenderer, 0, 0);
+    return;
+#else
     if(mSettings.fFullscreen == f && !mFirstFullscrenSetting) return;
     mFirstFullscrenSetting = false;
     mSettings.fFullscreen = f;
@@ -127,7 +156,83 @@ void eMainWindow::setFullscreen(const bool f) {
     } else {
         SDL_RenderSetLogicalSize(mSdlRenderer, 0, 0);
     }
+#endif
 }
+
+#ifdef __ANDROID__
+
+// Distance (in pixels) a finger may travel before a tap becomes a drag,
+// and how long it must rest before it counts as a right click.
+static const int gTouchSlop = 24;
+static const unsigned int gLongPressMs = 450;
+
+void eMainWindow::handleTouchEvent(const SDL_Event& e) {
+    int w = 0;
+    int h = 0;
+    SDL_GetRendererOutputSize(mSdlRenderer, &w, &h);
+    const int x = int(e.tfinger.x*w);
+    const int y = int(e.tfinger.y*h);
+
+    const auto press = [this](const int px, const int py,
+                              const eMouseButton b) {
+        if(!mWidget) return;
+        const eMouseEvent me(px, py, false, false, b, b);
+        mWidget->mousePress(me);
+        const eMouseEvent up(px, py, false, false,
+                             eMouseButton::none, b);
+        mWidget->mouseRelease(up);
+    };
+
+    switch(e.type) {
+    case SDL_FINGERDOWN:
+        mTouchDown = true;
+        mTouchPanning = false;
+        mTouchLongPressed = false;
+        mTouchStartX = mTouchLastX = x;
+        mTouchStartY = mTouchLastY = y;
+        mTouchStartTime = SDL_GetTicks();
+        // Let widgets highlight what is under the finger.
+        if(mWidget) {
+            const eMouseEvent me(x, y, false, false, eMouseButton::none);
+            mWidget->mouseMove(me);
+        }
+        break;
+
+    case SDL_FINGERMOTION: {
+        if(!mTouchDown) break;
+        const int totalDX = x - mTouchStartX;
+        const int totalDY = y - mTouchStartY;
+        if(!mTouchPanning &&
+           (std::abs(totalDX) > gTouchSlop ||
+            std::abs(totalDY) > gTouchSlop)) {
+            mTouchPanning = true;
+        }
+        if(mTouchPanning && mGW && mWidget == mGW) {
+            mGW->panBy(x - mTouchLastX, y - mTouchLastY);
+        } else if(mWidget) {
+            const eMouseEvent me(x, y, false, false, eMouseButton::none);
+            mWidget->mouseMove(me);
+        }
+        mTouchLastX = x;
+        mTouchLastY = y;
+    } break;
+
+    case SDL_FINGERUP:
+        if(!mTouchDown) break;
+        mTouchDown = false;
+        if(mTouchPanning || mTouchLongPressed) break;
+        if(SDL_GetTicks() - mTouchStartTime >= gLongPressMs) {
+            press(x, y, eMouseButton::right);
+        } else {
+            press(x, y, eMouseButton::left);
+        }
+        break;
+
+    default: break;
+    }
+}
+
+#endif // __ANDROID__
 
 void eMainWindow::startGameAction(eGameBoard* const board,
                                   const eGameWidgetSettings& settings) {
@@ -265,7 +370,7 @@ void eMainWindow::episodeLost() {
 bool eMainWindow::saveGame(const std::string& path) {
     const auto fsp = std::filesystem::path(path);
     const auto fspd = fsp.parent_path();
-    std::filesystem::create_directories(fspd);
+    eFs::createDirectories(fspd);
     std::ofstream file(path, std::ios::out | std::ios::binary |
                        std::ios::trunc);
     if(!file) return false;
@@ -605,6 +710,12 @@ int eMainWindow::exec() {
             } else if(e.type == SDL_RENDER_TARGETS_RESET ||
                       e.type == SDL_RENDER_DEVICE_RESET) {
                 resetRenderTargets = true;
+#ifdef __ANDROID__
+            } else if(e.type == SDL_FINGERDOWN ||
+                      e.type == SDL_FINGERMOTION ||
+                      e.type == SDL_FINGERUP) {
+                handleTouchEvent(e);
+#endif
             } else if(e.type == SDL_MOUSEMOTION) {
                 const eMouseEvent me(x, y, shift, ctrl, buttons, button);
                 if(mWidget) mWidget->mouseMove(me);

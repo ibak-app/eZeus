@@ -1,4 +1,5 @@
 #include "esettingsmenu.h"
+#include "../efilesystem.h"
 
 #include "echeckbox.h"
 #include "elabeledwidget.h"
@@ -25,7 +26,7 @@ eWidget* createTextureBox(eMainWindow* const window,
                           const std::string& text,
                           const int p,
                           const std::string& path) {
-    const bool missing = !std::filesystem::exists(path);
+    const bool missing = !eFs::exists(path);
     const auto w = new eWidget(window);
     w->setNoPadding();
 

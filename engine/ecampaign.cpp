@@ -1,4 +1,5 @@
 #include "ecampaign.h"
+#include "../efilesystem.h"
 
 #include <fstream>
 
@@ -511,9 +512,9 @@ bool eCampaign::load(const std::string& name) {
 bool eCampaign::save() const {
     const auto baseDir = eGameDir::adventuresDir();
     const auto aDir = baseDir + mName + "/";
-    std::filesystem::create_directories(aDir);
+    eFs::createDirectories(aDir);
     const auto txtFile = aDir + mName + ".txt";
-    if(!std::filesystem::exists(txtFile)) writeStrings(txtFile);
+    if(!eFs::exists(txtFile)) writeStrings(txtFile);
 
     const auto pakFile = aDir + mName + ".epak";
     std::ofstream file(pakFile, std::ios::out | std::ios::binary |

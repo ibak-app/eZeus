@@ -298,6 +298,10 @@ void eGameWidget::initialize() {
 
     const int p = padding();
 
+#ifdef __ANDROID__
+    if(!mEditorMode) addTouchControls();
+#endif
+
     if(mEditorMode) {
         const auto str = eLanguage::text("settings");
         const auto settingsButt = new eFramedButton(str, window());
@@ -1772,22 +1776,74 @@ void eGameWidget::switchPause() {
     updateTipPositions();
 }
 
+void eGameWidget::addTouchControls() {
+    // Touch devices have no keyboard, so the shortcuts that drive the
+    // simulation get an on-screen row along the bottom-left corner.
+    const int p = padding();
+    // Laid out by hand: the generic layouts size themselves from the
+    // parent, which squeezes the row against the left edge.
+    int x = p;
+    int rowHeight = 0;
+    std::vector<eFramedButton*> row;
+
+    const auto addButton = [this, &x, &rowHeight, &row, p](
+            const std::string& text, const eAction& action) {
+        const auto b = new eFramedButton(window());
+        b->setUnderline(false);
+        b->setRenderBg(true);
+        b->setText(text);
+        b->fitContent();
+        // Enlarge the hit area — a text-sized button is hard to tap.
+        b->resize(b->width() + 2*p, b->height() + p);
+        b->setPressAction(action);
+        addWidget(b);
+        b->move(x, 0);
+        x += b->width() + p;
+        rowHeight = std::max(rowHeight, b->height());
+        row.push_back(b);
+        return b;
+    };
+
+    addButton(eLanguage::text("menu"), [this]() { openGameMenu(); });
+    mPauseButton = addButton(eLanguage::text("pause"),
+                             [this]() { switchPause(); });
+    addButton("<<", [this]() { changeSpeed(-1); });
+    mSpeedLabel = addButton(">>", [this]() { changeSpeed(1); });
+    addButton(eLanguage::text("rotate"), [this]() { rotateView(); });
+
+    // Sit the finished row just above the bottom edge.
+    const int y = height() - rowHeight - p;
+    for(const auto& b : row) b->move(b->x(), y);
+}
+
+void eGameWidget::panBy(const int ddx, const int ddy) {
+    setDX(mDX + ddx);
+    setDY(mDY + ddy);
+}
+
+void eGameWidget::changeSpeed(const int by) {
+    mSpeedId = std::clamp(mSpeedId + by, 0, sMaxSpeedId);
+    mSpeed = sSpeeds[mSpeedId];
+}
+
+void eGameWidget::rotateView() {
+    mRotate = !mRotate;
+    mRotateFrame = (mRotateFrame/gRotateFrames + 1)*gRotateFrames;
+    mRotateId++;
+    if(mRotateId > 3) mRotateId = 0;
+}
+
 bool eGameWidget::keyPressEvent(const eKeyPressEvent& e) {
     if(mLocked) return true;
     const auto k = e.key();
     if(k == SDL_Scancode::SDL_SCANCODE_KP_PLUS ||
        k == SDL_Scancode::SDL_SCANCODE_RIGHTBRACKET) {
-        mSpeedId = std::clamp(mSpeedId + 1, 0, sMaxSpeedId);
-        mSpeed = sSpeeds[mSpeedId];
+        changeSpeed(1);
     } else if(k == SDL_Scancode::SDL_SCANCODE_KP_MINUS ||
               k == SDL_Scancode::SDL_SCANCODE_LEFTBRACKET) {
-        mSpeedId = std::clamp(mSpeedId - 1, 0, sMaxSpeedId);
-        mSpeed = sSpeeds[mSpeedId];
+        changeSpeed(-1);
     } else if(k == SDL_Scancode::SDL_SCANCODE_R) {
-        mRotate = !mRotate;
-        mRotateFrame = (mRotateFrame/gRotateFrames + 1)*gRotateFrames;
-        mRotateId++;
-        if(mRotateId > 3) mRotateId = 0;
+        rotateView();
     } else if(k == SDL_Scancode::SDL_SCANCODE_P) {
         switchPause();
     } else if(k == SDL_Scancode::SDL_SCANCODE_LEFT) {
@@ -1823,7 +1879,15 @@ bool eGameWidget::keyPressEvent(const eKeyPressEvent& e) {
             viewBookmark(4);
         }
     } else if(k == SDL_Scancode::SDL_SCANCODE_ESCAPE) {
-        if(!mMsgBox && !mBoard->editorMode()) {
+        openGameMenu();
+    }
+    return true;
+}
+
+void eGameWidget::openGameMenu() {
+    {
+        {
+            if(mMsgBox || mBoard->editorMode()) return;
             mBoard->waitUntilFinished();
             const auto menu = new eGameMainMenu(window());
             menu->resize(width()/4, height()/2);
@@ -1872,7 +1936,6 @@ bool eGameWidget::keyPressEvent(const eKeyPressEvent& e) {
             w->execDialog(menu);
         }
     }
-    return true;
 }
 
 bool eGameWidget::mousePressEvent(const eMouseEvent& e) {

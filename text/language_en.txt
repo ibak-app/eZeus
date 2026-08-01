@@ -131,3 +131,7 @@ one_direction "One directions"
 can_accept "Can accept"
 
 greetings "Greetings,"
+
+menu "MENU"
+pause "PAUSE"
+rotate "TURN"

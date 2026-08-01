@@ -1,4 +1,5 @@
 #include "echoosegameeditmenu.h"
+#include "../efilesystem.h"
 
 #include "eframedwidget.h"
 #include "eframedbutton.h"
@@ -81,7 +82,7 @@ void eChooseGameEditMenu::initialize(const bool editor) {
     std::vector<eCampaignGlossary> glossaries;
     {
         const auto folder = eGameDir::adventuresDir();
-        std::filesystem::create_directories(folder);
+        eFs::createDirectories(folder);
         for(const auto& entry : fs::directory_iterator(folder)) {
             const bool dir = entry.is_directory();
             if(!dir) continue;
@@ -257,7 +258,7 @@ void eChooseGameEditMenu::initialize(const bool editor) {
            const auto q = new eQuestionWidget(window());
            const auto acceptA = [this]() {
                const auto dir = eGameDir::adventuresDir() + mSelected.fFolderName + "/";
-               std::filesystem::remove_all(dir);
+               eFs::removeAll(dir);
                window()->showChooseGameEditMenu();
            };
            q->initialize(eLanguage::zeusText(5, 179),

@@ -1,4 +1,5 @@
 #include "egametextures.h"
+#include "../efilesystem.h"
 
 #include <functional>
 #include <filesystem>
@@ -2283,7 +2284,7 @@ bool checkTextureFiles() {
     bool missing = false;
     for(const auto& f : files) {
         const auto path = eGameDir::path("DATA/" + f.fFilename);
-        const bool e = std::filesystem::exists(path);
+        const bool e = eFs::exists(path);
         if(!e) {
             missing = true;
             printf("File missing '%s'\n", path.c_str());
@@ -2297,7 +2298,7 @@ bool eGameTextures::initialize(SDL_Renderer* const r) {
     if(sInitialized) return true;
 //    const bool e = checkTextureFiles();
     const auto path = eGameDir::path("DATA");
-    const bool e = std::filesystem::exists(path);
+    const bool e = eFs::exists(path);
     if(!e) {
         printf("DATA folder missing from Zeus and Poseidon directory.\n"
                "Expected to find %s\n",

@@ -1,4 +1,5 @@
 #include "efilewidget.h"
+#include "../efilesystem.h"
 
 #include "emainwindow.h"
 
@@ -85,7 +86,7 @@ void eFileWidget::intialize(const std::string& title,
     const auto filesWidget = new eWidget(window());
 
     std::map<time_t, fs::path> sorted;
-    if(std::filesystem::exists(folder)) {
+    if(eFs::exists(folder)) {
         for(const auto& entry : fs::directory_iterator(folder)) {
             const auto path = entry.path();
             const auto ext = path.extension();

@@ -102,6 +102,21 @@ private:
     stdsptr<eCampaign> mCampaign;
     eGameBoard* mBoard = nullptr;
     eGameWidget* mGW = nullptr;
+
+#ifdef __ANDROID__
+    // Touch gesture state: a tap is a left click, a long press is a
+    // right click, and dragging pans the map.
+    bool mTouchDown = false;
+    bool mTouchPanning = false;
+    bool mTouchLongPressed = false;
+    int mTouchStartX = 0;
+    int mTouchStartY = 0;
+    int mTouchLastX = 0;
+    int mTouchLastY = 0;
+    unsigned int mTouchStartTime = 0;
+
+    void handleTouchEvent(const SDL_Event& e);
+#endif
     eWorldWidget* mWW = nullptr;
 
     eWidget* mWidget = nullptr;

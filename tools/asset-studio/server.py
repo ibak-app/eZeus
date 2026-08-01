@@ -35,11 +35,15 @@ IMAGE_MODEL_PREFERENCE = [
 
 
 KEY_NAMES = ['GOOGLE_GEMINI_API_KEY', 'GOOGLE_GEMINI_KEY',
-             'GOOGLE_AI_UTILITIES_KEY', 'GOOGLE_API_KEY']
+             'GOOGLE_AI_UTILITIES_KEY', 'GOOGLE_API_KEY',
+             'REPLICATE_API_TOKEN']
+
+# Nano Banana Pro on Replicate — a paid account, unlike the Gemini free
+# tier whose image quota is zero.
+REPLICATE_MODEL = 'google/nano-banana-pro'
 
 
-def api_keys():
-    """Kota aşımına karşı sırayla denenecek anahtarlar (tekilleştirilmiş)."""
+def env_values():
     path = os.path.expanduser('~/Keys/.env.master')
     found = {}
     with open(path) as f:
@@ -47,13 +51,19 @@ def api_keys():
             m = re.match(r'^([A-Z_]+)=(.+)$', line.strip())
             if m and m.group(1) in KEY_NAMES:
                 found[m.group(1)] = m.group(2)
+    return found
+
+
+def api_keys():
+    """Kota aşımına karşı sırayla denenecek Gemini anahtarları."""
+    found = env_values()
     keys = []
     for name in KEY_NAMES:
+        if name == 'REPLICATE_API_TOKEN':
+            continue
         v = found.get(name)
         if v and v not in keys:
             keys.append(v)
-    if not keys:
-        raise RuntimeError('Gemini anahtarı bulunamadı (~/Keys/.env.master)')
     return keys
 
 
@@ -153,6 +163,47 @@ def pick_model(key):
     raise RuntimeError('Görüntü üretebilen Gemini modeli bulunamadı')
 
 
+def save_png(raw):
+    fname = f'asset-{int(time.time())}.png'
+    with open(os.path.join(GENERATED, fname), 'wb') as f:
+        f.write(raw)
+    return fname
+
+
+def generate_replicate(prompt):
+    """Nano Banana Pro via Replicate (paid, so it actually has quota)."""
+    token = env_values().get('REPLICATE_API_TOKEN')
+    if not token:
+        raise RuntimeError('REPLICATE_API_TOKEN yok')
+    req = urllib.request.Request(
+        f'https://api.replicate.com/v1/models/{REPLICATE_MODEL}/predictions',
+        data=json.dumps({'input': {'prompt': prompt}}).encode(),
+        headers={'Authorization': f'Bearer {token}',
+                 'Content-Type': 'application/json',
+                 # Block until the prediction finishes instead of polling.
+                 'Prefer': 'wait=60'})
+    with urllib.request.urlopen(req, timeout=180) as r:
+        pred = json.load(r)
+
+    # 'Prefer: wait' may still return early for slow generations.
+    for _ in range(60):
+        if pred.get('status') in ('succeeded', 'failed', 'canceled'):
+            break
+        time.sleep(3)
+        poll = urllib.request.Request(
+            pred['urls']['get'], headers={'Authorization': f'Bearer {token}'})
+        with urllib.request.urlopen(poll, timeout=60) as r:
+            pred = json.load(r)
+
+    if pred.get('status') != 'succeeded':
+        raise RuntimeError(f"Replicate {pred.get('status')}: "
+                           f"{pred.get('error')}")
+    out = pred.get('output')
+    url = out[0] if isinstance(out, list) else out
+    with urllib.request.urlopen(url, timeout=120) as r:
+        return {'file': save_png(r.read()), 'model': REPLICATE_MODEL}
+
+
 def generate_image(prompt):
     data = None
     last_err = None
@@ -176,15 +227,17 @@ def generate_image(prompt):
                 continue  # sıradaki anahtarı dene
             raise
     if data is None:
-        raise RuntimeError(f'Tüm anahtarlar tükendi: {last_err}')
+        # Every Gemini key is out of quota — fall back to Replicate.
+        try:
+            return generate_replicate(prompt)
+        except Exception as e:  # noqa: BLE001 — reported to the UI
+            raise RuntimeError(f'Gemini: {last_err} | Replicate: {e}')
     for cand in data.get('candidates', []):
         for part in cand.get('content', {}).get('parts', []):
             inline = part.get('inlineData') or part.get('inline_data')
             if inline and inline.get('data'):
-                fname = f'asset-{int(time.time())}.png'
-                with open(os.path.join(GENERATED, fname), 'wb') as f:
-                    f.write(base64.b64decode(inline['data']))
-                return {'file': fname, 'model': model}
+                return {'file': save_png(base64.b64decode(inline['data'])),
+                        'model': model}
     raise RuntimeError('Modelden görüntü dönmedi: %s' %
                        json.dumps(data)[:400])
 

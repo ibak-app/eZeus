@@ -47,6 +47,13 @@ bool init() {
         printf("Warning: Linear texture filtering not enabled!");
     }
 
+#ifdef __ANDROID__
+    // Taps, long presses and drags are interpreted by hand
+    // (eMainWindow::handleTouchEvent); the synthesized mouse events
+    // would fire a second, conflicting click for every gesture.
+    SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+#endif
+
     const int imgFlags = IMG_INIT_PNG;
     if(!(IMG_Init(imgFlags) & imgFlags)) {
         printf("SDL_image could not initialize! SDL_image Error: %s\n",
@@ -176,14 +183,9 @@ int main(int, char**) {
     eSettings settings;
     settings.read();
 #ifdef __ANDROID__
-    // Always render at the device's native resolution on Android.
-    {
-        SDL_DisplayMode dm;
-        if(SDL_GetCurrentDisplayMode(0, &dm) == 0) {
-            settings.fRes = eResolution(dm.w, dm.h);
-            settings.fFullscreen = true;
-        }
-    }
+    // The window always covers the screen; the real surface size is
+    // adopted once the renderer exists (see eMainWindow::initialize).
+    settings.fFullscreen = true;
 #endif
     bool found = false;
     const auto checkTextureSize = [&found](const std::string& path,

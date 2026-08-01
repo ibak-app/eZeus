@@ -131,3 +131,7 @@ one_direction "Tek yön"
 can_accept "Kabul edilebilir"
 
 greetings "Selamlar,"
+
+menu "MENÜ"
+pause "DUR"
+rotate "DÖN"

@@ -142,6 +142,9 @@ public:
 
     void centerDialog(eWidget* const d);
     void openDialog(eWidget* const d) override;
+
+    // Drag the map by a screen-space delta (touch panning).
+    void panBy(const int ddx, const int ddy);
 protected:
     void paintEvent(ePainter& p) override;
 
@@ -281,6 +284,10 @@ private:
     eInfoWidget* openInfoWidget(const std::vector<eCharacter *> chars);
 
     void switchPause();
+    void changeSpeed(const int by);
+    void rotateView();
+    void openGameMenu();
+    void addTouchControls();
 
     stdsptr<eTexture> getBasementTexture(
             const int tx, const int ty, eBuilding* const d,
@@ -368,6 +375,11 @@ private:
     std::deque<eSavedMessage> mSavedMsgs;
     eTerrainEditMenu* mTem = nullptr;
     eGameMenu* mGm = nullptr;
+
+    // On-screen replacements for the keyboard shortcuts (touch devices).
+    eWidget* mTouchControls = nullptr;
+    eFramedButton* mPauseButton = nullptr;
+    eFramedButton* mSpeedLabel = nullptr;
     eArmyMenu* mAm = nullptr;
 
     eWorldWidget* mWW = nullptr;
