@@ -98,6 +98,9 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
     inner->addWidget(col3);
     col3->setX(2*colw + 2*p + 2*colm);
 
+#ifndef __ANDROID__
+    // On Android the surface size is fixed by the OS, so neither the
+    // resolution list nor the windowed/fullscreen toggle applies.
     {
         const auto res = mSettings.fRes;
         const auto& ress = eResolution::sResolutions;
@@ -156,6 +159,9 @@ void eSettingsMenu::initialize(const eApplyAction& settingsA,
         });
         fs->align(eAlignment::hcenter);
     }
+#else
+    (void)fullscreenA;
+#endif
 
     {
         const auto texsFrame = new eFramedWidget(window());

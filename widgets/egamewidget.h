@@ -145,6 +145,9 @@ public:
 
     // Drag the map by a screen-space delta (touch panning).
     void panBy(const int ddx, const int ddy);
+    // While a building mode is armed, dragging draws roads/walls, so
+    // touch panning must stay out of the way.
+    bool buildingModeActive() const;
 protected:
     void paintEvent(ePainter& p) override;
 

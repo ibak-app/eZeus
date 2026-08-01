@@ -54,6 +54,11 @@ void eSettings::read() {
     fMediumTextures = settings["medium_textures"] == "true";
     fLargeTextures = settings["large_textures"] == "true";
     fFullscreen = settings["fullscreen"] == "true";
+#ifdef __ANDROID__
+    // The surface size is dictated by the OS; a stored resolution would
+    // lay the interface out for a screen that does not exist.
+    fFullscreen = true;
+#else
     const auto widthStr = settings["width"];
     const auto heightStr = settings["height"];
     if(!widthStr.empty() && !heightStr.empty()) {
@@ -61,5 +66,6 @@ void eSettings::read() {
         const int height = std::stoi(heightStr);
         fRes = eResolution(width, height);
     }
+#endif
 }
 

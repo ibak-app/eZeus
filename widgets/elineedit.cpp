@@ -21,6 +21,16 @@ bool eLineEdit::mouseMoveEvent(const eMouseEvent& e) {
     return true;
 }
 
+bool eLineEdit::mousePressEvent(const eMouseEvent& e) {
+    (void)e;
+#ifdef __ANDROID__
+    // Tapping a text field has to raise the on-screen keyboard —
+    // there is no physical one to fall back on.
+    SDL_StartTextInput();
+#endif
+    return true;
+}
+
 bool eLineEdit::mouseEnterEvent(const eMouseEvent& e) {
     (void)e;
     mHovered = true;

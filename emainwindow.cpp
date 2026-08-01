@@ -20,6 +20,7 @@
 #include "fileIO/ereadstream.h"
 
 #include <chrono>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 
@@ -183,35 +184,94 @@ void eMainWindow::handleTouchEvent(const SDL_Event& e) {
         mWidget->mouseRelease(up);
     };
 
+    // Two fingers pinch to zoom; the game zooms through wheel events.
+    const int fingers = SDL_GetNumTouchFingers(e.tfinger.touchId);
+    if(fingers >= 2) {
+        const auto f0 = SDL_GetTouchFinger(e.tfinger.touchId, 0);
+        const auto f1 = SDL_GetTouchFinger(e.tfinger.touchId, 1);
+        if(f0 && f1) {
+            const double dx = double(f0->x - f1->x)*w;
+            const double dy = double(f0->y - f1->y)*h;
+            const double dist = std::sqrt(dx*dx + dy*dy);
+            if(!mTouchPinching) {
+                mTouchPinching = true;
+                mPinchDistance = dist;
+                // A pinch is never a tap, a drag or a pan.
+                mTouchDown = false;
+                mTouchPanning = false;
+                if(mTouchDragging && mWidget) {
+                    const eMouseEvent me(x, y, false, false,
+                                         eMouseButton::none,
+                                         eMouseButton::left);
+                    mWidget->mouseRelease(me);
+                    mTouchDragging = false;
+                }
+            } else if(std::abs(dist - mPinchDistance) > 60) {
+                const bool out = dist > mPinchDistance;
+                mPinchDistance = dist;
+                if(mWidget) {
+                    // 4 clicks: the game debounces the wheel at 3.
+                    const eMouseWheelEvent we(x, y, false, false,
+                                              eMouseButton::none,
+                                              out ? 4 : -4);
+                    mWidget->mouseWheel(we);
+                }
+            }
+        }
+        return;
+    }
+    if(mTouchPinching) {
+        // Wait for every finger to leave before reading gestures again.
+        if(fingers == 0) mTouchPinching = false;
+        return;
+    }
+
+    // While a building mode is armed, dragging has to reach the game as a
+    // held-down left button so roads and walls can be drawn in one stroke.
+    const bool building = mGW && mWidget == mGW && mGW->buildingModeActive();
+
     switch(e.type) {
     case SDL_FINGERDOWN:
         mTouchDown = true;
         mTouchPanning = false;
-        mTouchLongPressed = false;
+        mTouchDragging = false;
         mTouchStartX = mTouchLastX = x;
         mTouchStartY = mTouchLastY = y;
         mTouchStartTime = SDL_GetTicks();
-        // Let widgets highlight what is under the finger.
-        if(mWidget) {
+        if(!mWidget) break;
+        if(building) {
+            // Start the stroke immediately.
+            mTouchDragging = true;
+            const eMouseEvent me(x, y, false, false, eMouseButton::left,
+                                 eMouseButton::left);
+            mWidget->mouseMove(me);
+            mWidget->mousePress(me);
+        } else {
+            // Let widgets highlight what is under the finger.
             const eMouseEvent me(x, y, false, false, eMouseButton::none);
             mWidget->mouseMove(me);
         }
         break;
 
     case SDL_FINGERMOTION: {
-        if(!mTouchDown) break;
-        const int totalDX = x - mTouchStartX;
-        const int totalDY = y - mTouchStartY;
-        if(!mTouchPanning &&
-           (std::abs(totalDX) > gTouchSlop ||
-            std::abs(totalDY) > gTouchSlop)) {
-            mTouchPanning = true;
-        }
-        if(mTouchPanning && mGW && mWidget == mGW) {
-            mGW->panBy(x - mTouchLastX, y - mTouchLastY);
-        } else if(mWidget) {
-            const eMouseEvent me(x, y, false, false, eMouseButton::none);
+        if(!mTouchDown || !mWidget) break;
+        if(mTouchDragging) {
+            const eMouseEvent me(x, y, false, false, eMouseButton::left);
             mWidget->mouseMove(me);
+        } else {
+            const int totalDX = x - mTouchStartX;
+            const int totalDY = y - mTouchStartY;
+            if(!mTouchPanning &&
+               (std::abs(totalDX) > gTouchSlop ||
+                std::abs(totalDY) > gTouchSlop)) {
+                mTouchPanning = true;
+            }
+            if(mTouchPanning && mGW && mWidget == mGW) {
+                mGW->panBy(x - mTouchLastX, y - mTouchLastY);
+            } else {
+                const eMouseEvent me(x, y, false, false, eMouseButton::none);
+                mWidget->mouseMove(me);
+            }
         }
         mTouchLastX = x;
         mTouchLastY = y;
@@ -220,7 +280,17 @@ void eMainWindow::handleTouchEvent(const SDL_Event& e) {
     case SDL_FINGERUP:
         if(!mTouchDown) break;
         mTouchDown = false;
-        if(mTouchPanning || mTouchLongPressed) break;
+        if(mTouchDragging) {
+            // Close the stroke — this is what commits the built tiles.
+            if(mWidget) {
+                const eMouseEvent me(x, y, false, false, eMouseButton::none,
+                                     eMouseButton::left);
+                mWidget->mouseRelease(me);
+            }
+            mTouchDragging = false;
+            break;
+        }
+        if(mTouchPanning) break;
         if(SDL_GetTicks() - mTouchStartTime >= gLongPressMs) {
             press(x, y, eMouseButton::right);
         } else {

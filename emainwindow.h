@@ -108,7 +108,9 @@ private:
     // right click, and dragging pans the map.
     bool mTouchDown = false;
     bool mTouchPanning = false;
-    bool mTouchLongPressed = false;
+    bool mTouchDragging = false;
+    bool mTouchPinching = false;
+    double mPinchDistance = 0;
     int mTouchStartX = 0;
     int mTouchStartY = 0;
     int mTouchLastX = 0;

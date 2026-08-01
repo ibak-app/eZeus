@@ -1821,6 +1821,11 @@ void eGameWidget::panBy(const int ddx, const int ddy) {
     setDY(mDY + ddy);
 }
 
+bool eGameWidget::buildingModeActive() const {
+    if(mTerrainEditMode) return true;
+    return mGm && mGm->mode() != eBuildingMode::none;
+}
+
 void eGameWidget::changeSpeed(const int by) {
     mSpeedId = std::clamp(mSpeedId + by, 0, sMaxSpeedId);
     mSpeed = sSpeeds[mSpeedId];

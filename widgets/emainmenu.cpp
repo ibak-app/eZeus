@@ -45,7 +45,13 @@ void eMainMenu::initialize(const eAction& newGameA,
 
     addButton(eLanguage::zeusText(1, 1), newGameA, buttons, w);
     addButton(eLanguage::zeusText(1, 3), loadGameA, buttons, w);
+#ifndef __ANDROID__
+    // The adventure editor is a mouse-and-keyboard tool; it has no
+    // usable touch equivalent.
     addButton(eLanguage::zeusText(287, 3), editGameA, buttons, w);
+#else
+    (void)editGameA;
+#endif
     addButton(eLanguage::zeusText(2, 0), settingsA, buttons, w);
     addButton(eLanguage::zeusText(1, 5), quitA, buttons, w);
 
