@@ -1,5 +1,7 @@
 #include "einterfacetextures.h"
 
+#include "../efilesystem.h"
+
 #include "spriteData/interfaceBanners15.h"
 #include "spriteData/interfaceBanners30.h"
 #include "spriteData/interfaceBanners45.h"
@@ -1245,6 +1247,17 @@ void eInterfaceTextures::load() {
 
             fDefeatImage = std::make_shared<eTexture>();
             fDefeatImage->load(fRenderer, dir + "Zeus_Defeat.jpg");
+        }
+
+        // The stock menu art lives inside the packed .e archives, so a
+        // replacement cannot simply be dropped in beside it. Look for a
+        // loose override first and fall back to the original when absent.
+        {
+            const auto custom = eGameDir::path("Halikarnassos_FE_MainMenu.jpg");
+            if(eFs::exists(custom)) {
+                const auto tex = std::make_shared<eTexture>();
+                if(tex->load(fRenderer, custom)) fMainMenuImage = tex;
+            }
         }
     }
 

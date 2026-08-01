@@ -17,6 +17,11 @@ public:
     int height() const { return mHeight; }
 
     double multiplier() const;
+    // Touch devices need bigger text and hit areas than the largest
+    // desktop scale provides; these are no-ops off Android.
+    double touchMultiplier() const;
+    int touchTargetMin() const;
+    int touchFontSize(const int desktopSize) const;
 
     int hugePadding() const;
     int largePadding() const;

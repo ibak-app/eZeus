@@ -83,6 +83,13 @@ void eWidget::fitContent() {
     resize(w + 2*mPadding, h + 2*mPadding);
 }
 
+void eWidget::padToTouchTarget() {
+#ifdef __ANDROID__
+    const int m = resolution().touchTargetMin();
+    resize(std::max(width(), m), std::max(height(), m));
+#endif
+}
+
 void eWidget::fitHeight() {
     const int w = width();
     fitContent();

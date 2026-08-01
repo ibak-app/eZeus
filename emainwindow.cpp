@@ -239,15 +239,9 @@ void eMainWindow::handleTouchEvent(const SDL_Event& e) {
         mTouchStartY = mTouchLastY = y;
         mTouchStartTime = SDL_GetTicks();
         if(!mWidget) break;
-        if(building) {
-            // Start the stroke immediately.
-            mTouchDragging = true;
-            const eMouseEvent me(x, y, false, false, eMouseButton::left,
-                                 eMouseButton::left);
-            mWidget->mouseMove(me);
-            mWidget->mousePress(me);
-        } else {
-            // Let widgets highlight what is under the finger.
+        // Nothing is committed yet: the gesture may still turn out to be
+        // a long press, which has to stay available as "cancel".
+        {
             const eMouseEvent me(x, y, false, false, eMouseButton::none);
             mWidget->mouseMove(me);
         }
@@ -255,23 +249,40 @@ void eMainWindow::handleTouchEvent(const SDL_Event& e) {
 
     case SDL_FINGERMOTION: {
         if(!mTouchDown || !mWidget) break;
+        const int totalDX = x - mTouchStartX;
+        const int totalDY = y - mTouchStartY;
+        const bool moved = std::abs(totalDX) > gTouchSlop ||
+                           std::abs(totalDY) > gTouchSlop;
+        if(!mTouchDragging && !mTouchPanning && moved) {
+            if(mWidget != mGW) {
+                // Menus and dialogs: forward the drag as a held button so
+                // lists can scroll with the finger.
+                mTouchDragging = true;
+                const eMouseEvent start(mTouchStartX, mTouchStartY,
+                                        false, false, eMouseButton::left,
+                                        eMouseButton::left);
+                mWidget->mousePress(start);
+            } else if(building) {
+                // Open the stroke back at the finger's starting tile so
+                // the first square of the road is not lost.
+                mTouchDragging = true;
+                const eMouseEvent start(mTouchStartX, mTouchStartY,
+                                        false, false, eMouseButton::left,
+                                        eMouseButton::left);
+                mWidget->mouseMove(start);
+                mWidget->mousePress(start);
+            } else {
+                mTouchPanning = true;
+            }
+        }
         if(mTouchDragging) {
             const eMouseEvent me(x, y, false, false, eMouseButton::left);
             mWidget->mouseMove(me);
+        } else if(mTouchPanning && mGW && mWidget == mGW) {
+            mGW->panBy(x - mTouchLastX, y - mTouchLastY);
         } else {
-            const int totalDX = x - mTouchStartX;
-            const int totalDY = y - mTouchStartY;
-            if(!mTouchPanning &&
-               (std::abs(totalDX) > gTouchSlop ||
-                std::abs(totalDY) > gTouchSlop)) {
-                mTouchPanning = true;
-            }
-            if(mTouchPanning && mGW && mWidget == mGW) {
-                mGW->panBy(x - mTouchLastX, y - mTouchLastY);
-            } else {
-                const eMouseEvent me(x, y, false, false, eMouseButton::none);
-                mWidget->mouseMove(me);
-            }
+            const eMouseEvent me(x, y, false, false, eMouseButton::none);
+            mWidget->mouseMove(me);
         }
         mTouchLastX = x;
         mTouchLastY = y;
@@ -340,7 +351,13 @@ void eMainWindow::showEpisodeIntroduction(
         saveGame(dir + "autosave replay.ez");
         startGameAction([this]() {
             eGameWidgetSettings settings;
+#ifdef __ANDROID__
+            // The pause hint names the 'P' key, which a phone does not
+            // have — starting paused just reads as a frozen game.
+            settings.fPaused = false;
+#else
             settings.fPaused = true;
+#endif
             showGame(mCampaign, settings);
         });
     };

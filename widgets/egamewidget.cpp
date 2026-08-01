@@ -1810,10 +1810,32 @@ void eGameWidget::addTouchControls() {
     addButton("<<", [this]() { changeSpeed(-1); });
     mSpeedLabel = addButton(">>", [this]() { changeSpeed(1); });
     addButton(eLanguage::text("rotate"), [this]() { rotateView(); });
+    // Dropping the armed building tool needs a visible escape hatch —
+    // right-click is a long press here, which is easy to miss.
+    mCancelButton = addButton(eLanguage::text("cancel"), [this]() {
+        if(mGm) mGm->clearMode();
+    });
+    updateTouchControls();
 
     // Sit the finished row just above the bottom edge.
     const int y = height() - rowHeight - p;
     for(const auto& b : row) b->move(b->x(), y);
+}
+
+void eGameWidget::updateTouchControls() {
+    if(!mCancelButton) return;
+    // The armed building tool is otherwise invisible on a phone: the
+    // menu button that selected it is hidden behind the panel.
+    const bool building = buildingModeActive();
+    if(building) {
+        mCancelButton->setYellowFontColor();
+    } else {
+        mCancelButton->setLightFontColor();
+    }
+    if(mPauseButton) {
+        mPauseButton->setText(mPaused ? eLanguage::text("resume") :
+                                        eLanguage::text("pause"));
+    }
 }
 
 void eGameWidget::panBy(const int ddx, const int ddy) {

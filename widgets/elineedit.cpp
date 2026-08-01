@@ -46,6 +46,16 @@ bool eLineEdit::mouseLeaveEvent(const eMouseEvent& e) {
 bool eLineEdit::keyPressEvent(const eKeyPressEvent& e) {
     const auto k = e.key();
     auto txt = text();
+#ifdef __ANDROID__
+    if(k == SDL_Scancode::SDL_SCANCODE_RETURN ||
+       k == SDL_Scancode::SDL_SCANCODE_KP_ENTER ||
+       k == SDL_Scancode::SDL_SCANCODE_RETURN2) {
+        // Enter is "done" on a phone — otherwise the keyboard covers
+        // half the dialog with no way to dismiss it.
+        SDL_StopTextInput();
+        return true;
+    }
+#endif
     if(k == SDL_Scancode::SDL_SCANCODE_BACKSPACE) {
         if(txt.empty()) return true;
         txt.pop_back();

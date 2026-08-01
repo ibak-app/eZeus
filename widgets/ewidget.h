@@ -31,6 +31,10 @@ public:
     void setHeight(const int h);
     void setPadding(const int padding);
     void fitContent();
+    // Grow the widget to at least a finger-sized box. Textures are drawn
+    // centered inside rect() rather than stretched, so the artwork stays
+    // pixel-exact while the tap area grows.
+    void padToTouchTarget();
     void fitHeight();
     void show();
     void hide();

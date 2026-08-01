@@ -379,6 +379,7 @@ void eGameWidget::paintEvent(ePainter& p) {
     }
     if(updateTips) updateTipPositions();
     mBoard->incFrame();
+    updateTouchControls();
 
     const int iMax = sIters[mSpeedId];
     const bool iterate = iMax > 1;

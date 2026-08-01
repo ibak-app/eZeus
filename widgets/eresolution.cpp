@@ -73,6 +73,26 @@ double eResolution::multiplier() const {
     }
 }
 
+double eResolution::touchMultiplier() const {
+#ifdef __ANDROID__
+    // A phone is held far closer than a monitor and has no pointer, so
+    // the largest desktop scale is still too small to read and to hit.
+    return 1.5*multiplier();
+#else
+    return multiplier();
+#endif
+}
+
+int eResolution::touchTargetMin() const {
+    // Roughly 48dp on a modern phone screen; the minimum comfortable
+    // tap area. On desktop this stays small enough to be harmless.
+    return 85*touchMultiplier();
+}
+
+int eResolution::touchFontSize(const int desktopSize) const {
+    return desktopSize*touchMultiplier()/multiplier();
+}
+
 int eResolution::hugeFontSize() const {
     return 3*largeFontSize()/2;
 }

@@ -291,6 +291,7 @@ private:
     void rotateView();
     void openGameMenu();
     void addTouchControls();
+    void updateTouchControls();
 
     stdsptr<eTexture> getBasementTexture(
             const int tx, const int ty, eBuilding* const d,
@@ -383,6 +384,7 @@ private:
     eWidget* mTouchControls = nullptr;
     eFramedButton* mPauseButton = nullptr;
     eFramedButton* mSpeedLabel = nullptr;
+    eFramedButton* mCancelButton = nullptr;
     eArmyMenu* mAm = nullptr;
 
     eWorldWidget* mWW = nullptr;

@@ -44,6 +44,28 @@ void eScrollWidget::scrollToTheTop() {
     clampDY();
 }
 
+bool eScrollWidget::mousePressEvent(const eMouseEvent& e) {
+    mDragging = true;
+    mDragStartY = e.y();
+    mDyAtDragStart = mDy;
+    return eWidget::mousePressEvent(e);
+}
+
+bool eScrollWidget::mouseMoveEvent(const eMouseEvent& e) {
+    if(mDragging) {
+        // Content follows the finger: dragging up reveals what is below.
+        mDy = mDyAtDragStart - (e.y() - mDragStartY);
+        clampDY();
+        return true;
+    }
+    return eWidget::mouseMoveEvent(e);
+}
+
+bool eScrollWidget::mouseReleaseEvent(const eMouseEvent& e) {
+    mDragging = false;
+    return eWidget::mouseReleaseEvent(e);
+}
+
 void eScrollWidget::paintEvent(ePainter& p) {
     //p.fillRect(rect(), {255, 0, 0, 255});
     if(mScrollArea) {
